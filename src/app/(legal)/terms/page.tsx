@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CONTACT_EMAIL, CONTACT_MAILTO } from "@/lib/contact";
 
 export const metadata: Metadata = { title: "Terms of Service" };
 
@@ -19,7 +20,7 @@ export default function TermsPage() {
         <h2 className="font-heading text-xl text-foreground">5. Donations</h2>
         <p>All donations are voluntary. Donors may be eligible for tax benefits under Section 80G. Refunds are subject to our refund policy.</p>
         <h2 className="font-heading text-xl text-foreground">6. Contact</h2>
-        <p>For questions about these terms, contact us at legal@varakwelfare.org</p>
+        <p>For questions about these terms, contact us at <a href={CONTACT_MAILTO} className="underline">{CONTACT_EMAIL}</a></p>
       </div>
     </div>
   );

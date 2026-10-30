@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CONTACT_EMAIL, CONTACT_MAILTO } from "@/lib/contact";
 
 export const metadata: Metadata = { title: "Privacy Policy" };
 
@@ -15,7 +16,7 @@ export default function PrivacyPage() {
         <h2 className="font-heading text-xl text-foreground">3. Data Security</h2>
         <p>We use industry-standard encryption (SSL/TLS) and secure payment gateways (Razorpay/Stripe) to protect your data.</p>
         <h2 className="font-heading text-xl text-foreground">4. Your Rights</h2>
-        <p>You have the right to access, correct, or delete your personal data. Contact privacy@varakwelfare.org for requests.</p>
+        <p>You have the right to access, correct, or delete your personal data. Contact <a href={CONTACT_MAILTO} className="underline">{CONTACT_EMAIL}</a> for requests.</p>
       </div>
     </div>
   );

@@ -13,6 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CONTACT_EMAIL, CONTACT_MAILTO } from "@/lib/contact";
 
 const causes = [
   "Breast Cancer",
@@ -201,7 +202,7 @@ export function Footer() {
             <ul className="space-y-2.5 text-sm text-white/45">
               <li className="flex items-center gap-2">
                 <Mail className="h-3.5 w-3.5 text-varak-warm-wash" />
-                support@varakwelfare.org
+                <a href={CONTACT_MAILTO} className="hover:text-white">{CONTACT_EMAIL}</a>
               </li>
               <li className="flex items-center gap-2">
                 <Phone className="h-3.5 w-3.5 text-varak-warm-wash" />

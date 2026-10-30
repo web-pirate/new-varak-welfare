@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import crypto from "crypto";
 import type { SubscriptionStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { completeDonation, hmacSha256, safeEqual } from "@/lib/payments";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,13 +12,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing signature" }, { status: 400 });
     }
 
-    // Verify webhook signature
-    const expectedSignature = crypto
-      .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
-      .update(body)
-      .digest("hex");
+    // Razorpay signs webhooks with the secret set on the webhook in its dashboard
+    const expectedSignature = hmacSha256(
+      (process.env.RAZORPAY_WEBHOOK_SECRET ?? process.env.RAZORPAY_KEY_SECRET)!,
+      body
+    );
 
-    if (expectedSignature !== signature) {
+    if (!safeEqual(expectedSignature, signature)) {
       return NextResponse.json(
         { error: "Invalid signature" },
         { status: 400 }
@@ -31,20 +31,15 @@ export async function POST(req: NextRequest) {
     if (eventType === "payment.captured") {
       const payment = payload.payment.entity;
 
-      await prisma.donation.updateMany({
-        where: { gatewayOrderId: payment.order_id },
-        data: {
-          gatewayPaymentId: payment.id,
-          status: "COMPLETED",
-        },
-      });
+      await completeDonation(payment.order_id, payment.id);
     }
 
     if (eventType === "payment.failed") {
       const payment = payload.payment.entity;
 
       await prisma.donation.updateMany({
-        where: { gatewayOrderId: payment.order_id },
+        // PENDING only: a late failure event must not undo a completed donation
+        where: { gatewayOrderId: payment.order_id, status: "PENDING" },
         data: {
           status: "FAILED",
         },
@@ -79,7 +74,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ status: "ok" });
   } catch (error) {
-    console.error("Razorpay webhook error:", error);
+    console.error("Razorpay webhook error:", error instanceof Error ? error.message : "unknown");
     return NextResponse.json(
       { error: "Webhook processing failed" },
       { status: 500 }

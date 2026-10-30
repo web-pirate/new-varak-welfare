@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { CONTACT_EMAIL, CONTACT_MAILTO } from "@/lib/contact";
 
 export const metadata: Metadata = { title: "Refund Policy" };
 
@@ -11,7 +12,7 @@ export default function RefundPage() {
         <h2 className="font-heading text-xl text-foreground">Refund Eligibility</h2>
         <p>Refunds may be requested within 7 days of donation if the campaign is found to be fraudulent or if the donation was made in error.</p>
         <h2 className="font-heading text-xl text-foreground">Refund Process</h2>
-        <p>Contact support@varakwelfare.org with your donation ID. Refunds are processed within 5-7 business days to the original payment method.</p>
+        <p>Contact <a href={CONTACT_MAILTO} className="underline">{CONTACT_EMAIL}</a> with your donation ID. Refunds are processed within 5-7 business days to the original payment method.</p>
         <h2 className="font-heading text-xl text-foreground">Non-Refundable</h2>
         <p>Platform tips and donations to completed campaigns where funds have been disbursed are generally non-refundable.</p>
       </div>

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { MapPin, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { CONTACT_EMAIL, CONTACT_MAILTO } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Careers",
@@ -61,8 +62,8 @@ export default function CareersPage() {
           </div>
           <p className="text-center text-sm text-muted-foreground mt-8">
             Don&apos;t see a role that fits? Send your resume to{" "}
-            <a href="mailto:careers@varakwelfare.org" className="text-varak-primary hover:underline">
-              careers@varakwelfare.org
+            <a href={CONTACT_MAILTO} className="text-varak-primary hover:underline">
+              {CONTACT_EMAIL}
             </a>
           </p>
         </div>

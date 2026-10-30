@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
-import { Mail, Phone, MapPin, Clock } from "lucide-react";
+import { Mail, Phone, MapPin, Clock, type LucideIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { CONTACT_EMAIL, CONTACT_MAILTO } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Contact Us",
   description: "Get in touch with Varak Cancer Welfare Society. We're here to help with your questions about fundraising, donations, or partnerships.",
 };
 
-const contactInfo = [
-  { icon: Mail, label: "Email", value: "support@varakwelfare.org" },
+const contactInfo: { icon: LucideIcon; label: string; value: string; href?: string }[] = [
+  { icon: Mail, label: "Email", value: CONTACT_EMAIL, href: CONTACT_MAILTO },
   { icon: Phone, label: "Phone", value: "+91 98765 43210" },
   { icon: MapPin, label: "Office", value: "Mumbai, Maharashtra, India" },
   { icon: Clock, label: "Hours", value: "Mon-Sat, 9AM - 7PM IST" },
@@ -40,14 +41,16 @@ export default function ContactPage() {
           <div className="grid lg:grid-cols-5 gap-12">
             {/* Contact info */}
             <div className="lg:col-span-2 space-y-6">
-              {contactInfo.map(({ icon: Icon, label, value }) => (
+              {contactInfo.map(({ icon: Icon, label, value, href }) => (
                 <div key={label} className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-xl bg-varak-primary/10 flex items-center justify-center flex-shrink-0">
                     <Icon className="h-5 w-5 text-varak-primary" />
                   </div>
                   <div>
                     <div className="text-sm text-muted-foreground">{label}</div>
-                    <div className="font-medium">{value}</div>
+                    <div className="font-medium">
+                      {href ? <a href={href} className="hover:text-varak-primary hover:underline">{value}</a> : value}
+                    </div>
                   </div>
                 </div>
               ))}
