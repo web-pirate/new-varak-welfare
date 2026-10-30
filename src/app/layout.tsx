@@ -53,7 +53,8 @@ export default async function RootLayout({
 }>) {
   const { userId } = await auth();
   if (userId) {
-    await syncUser();
+    // A DB failure must not take down every page for signed-in users.
+    await syncUser().catch((e) => console.error("syncUser failed", e));
   }
 
   return (
