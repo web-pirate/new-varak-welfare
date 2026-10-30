@@ -45,3 +45,9 @@ skills-lock.json
 
 # old CRA backup
 _old_src/
+
+# clerk configuration (can include secrets)
+/.clerk/
+
+!.env.example
+/env
