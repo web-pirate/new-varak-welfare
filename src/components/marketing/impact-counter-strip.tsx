@@ -42,6 +42,13 @@ function AnimatedCounter({ target, suffix = "", prefix = "" }: { target: number;
   );
 }
 
+// totalRaised is in rupees; show it in Indian units
+function formatRupees(n: number) {
+  if (n >= 1e7) return `${+(n / 1e7).toFixed(2)}Cr`;
+  if (n >= 1e5) return `${+(n / 1e5).toFixed(2)}L`;
+  return n.toLocaleString("en-IN");
+}
+
 type PlatformStats = {
   totalRaised: number;
   totalCampaigns: number;
@@ -119,6 +126,8 @@ export function ImpactCounterStrip({ platformStats }: { platformStats?: Platform
                 <div className="text-3xl md:text-4xl font-heading text-white tracking-tight mb-1">
                   {stat.target === 0 ? (
                     <span>0<span className="text-varak-gold text-xl">%</span></span>
+                  ) : useDB && stat.useFromDB === "totalRaised" ? (
+                    <span className="tabular-nums">{formatRupees(displayTarget)}</span>
                   ) : useDB ? (
                     <AnimatedCounter target={displayTarget} suffix={stat.suffix} prefix={stat.prefix} />
                   ) : (
