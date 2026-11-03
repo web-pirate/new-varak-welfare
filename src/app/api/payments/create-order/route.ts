@@ -14,7 +14,11 @@ function getRazorpay() {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const validated = donationSchema.parse(body);
+    const parsed = donationSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid request" }, { status: 400 });
+    }
+    const validated = parsed.data;
 
     const { userId } = await auth();
 
@@ -82,7 +86,7 @@ export async function POST(req: NextRequest) {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
     });
   } catch (error) {
-    console.error("Create order error:", error);
+    console.error("Create order error:", error instanceof Error ? error.message : "unknown");
     return NextResponse.json(
       { error: "Failed to create payment order" },
       { status: 500 }

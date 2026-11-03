@@ -14,6 +14,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { createCampaign } from "@/server/actions/campaign";
+import { PhotoGalleryUpload } from "@/components/forms/photo-gallery-upload";
+import { DocumentUpload, type DocItem } from "@/components/forms/document-upload";
 import {
   User,
   Heart,
@@ -69,6 +71,9 @@ export function CampaignWizard({
     story: "",
   });
 
+  const [images, setImages] = useState<string[]>([]);
+  const [documents, setDocuments] = useState<DocItem[]>([]);
+
   const update = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
     setError(null);
@@ -115,6 +120,9 @@ export function CampaignWizard({
       Object.entries(formData).forEach(([key, value]) => {
         if (value) fd.append(key, value);
       });
+
+      fd.append("images", JSON.stringify(images));
+      fd.append("documents", JSON.stringify(documents.map(({ url, fileName, type }) => ({ url, fileName, type }))));
 
       const result = await createCampaign(fd);
       if (result.success) {
@@ -205,6 +213,10 @@ export function CampaignWizard({
                 placeholder="Age"
                 className="mt-1"
               />
+            </div>
+            <div>
+              <Label htmlFor="wizard-photo">Patient&apos;s photos (optional)</Label>
+              <PhotoGalleryUpload id="wizard-photo" value={images} onChange={setImages} />
             </div>
           </div>
         )}
@@ -313,21 +325,12 @@ export function CampaignWizard({
               Upload medical documents to help verify your campaign. This
               increases donor trust and speeds up approval.
             </p>
-            <div className="border-2 border-dashed border-border rounded-xl p-8 text-center">
-              <FileText className="h-10 w-10 text-muted-foreground mx-auto mb-3" />
-              <p className="text-sm text-muted-foreground mb-2">
-                Drag & drop files here, or click to browse
-              </p>
-              <p className="text-xs text-muted-foreground">
-                PDF, JPG, PNG (max 5MB each)
-              </p>
-              <input
-                type="file"
-                multiple
-                accept=".pdf,.jpg,.jpeg,.png"
-                className="mt-3"
-              />
-            </div>
+            <DocumentUpload
+              value={documents}
+              onAdd={(items) => setDocuments((d) => [...d, ...items])}
+              onRemove={(_, index) => setDocuments((d) => d.filter((_, i) => i !== index))}
+              onTypeChange={(index, type) => setDocuments((d) => d.map((x, i) => (i === index ? { ...x, type } : x)))}
+            />
             <p className="text-xs text-muted-foreground">
               Accepted documents: Medical reports, hospital bills, prescriptions,
               doctor&apos;s letter. You can also add documents after creating the campaign.

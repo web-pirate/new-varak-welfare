@@ -309,7 +309,7 @@
   .drive.on .fruit { transform: scale(1); }
   .ecg { stroke-dasharray: 100; animation: mg-ecg 2.4s linear infinite; }
   .drip { animation: mg-drip 1.6s ease-in infinite; }
-  .blink { transform-box: fill-box; transform-origin: 50% 0; transform: scaleY(0); animation: mg-blink 5.2s ease-in-out infinite; }
+  .blink { transform-box: fill-box; transform-origin: 50% 0; transform: scaleY(0); animation: mg-blink 12s ease-in-out infinite; }
   .breathe { animation: mg-breathe 4.4s ease-in-out infinite; }
   .bob { animation: mg-bob 3.2s ease-in-out infinite; }
   .heart { transform-box: fill-box; transform-origin: 50% 50%; animation: mg-heartUp 1.7s ease-out forwards; }
@@ -383,7 +383,12 @@
 @keyframes mg-bump { 0% { transform: scale(1); } 35% { transform: scale(1.08); } 100% { transform: scale(1); } }
 @keyframes mg-ecg { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
 @keyframes mg-drip { 0% { transform: translateY(0); opacity: 0; } 20% { opacity: 1; } 85% { transform: translateY(9px); opacity: 1; } 100% { transform: translateY(10px); opacity: 0; } }
-@keyframes mg-blink { 0%, 92%, 100% { transform: scaleY(0); } 95% { transform: scaleY(1); } }
+@keyframes mg-blink {
+  0%, 11.5%, 13.5%, 49%, 56%, 84%, 87.4%, 100% { transform: scaleY(0); }
+  12.3%, 51%, 53.5%, 84.7%, 86.4% { transform: scaleY(1); }
+  52.2% { transform: scaleY(.8); }
+  85.6% { transform: scaleY(0); }
+}
 @keyframes mg-breathe { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-.8px); } }
 @keyframes mg-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @keyframes mg-heartUp {

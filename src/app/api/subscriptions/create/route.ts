@@ -72,7 +72,7 @@ export async function POST(req: NextRequest) {
       key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
     });
   } catch (error) {
-    console.error("Create subscription error:", error);
+    console.error("Create subscription error:", error instanceof Error ? error.message : "unknown");
     return NextResponse.json(
       { error: "Failed to start monthly giving" },
       { status: 500 }

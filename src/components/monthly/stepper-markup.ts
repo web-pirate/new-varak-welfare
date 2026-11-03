@@ -148,6 +148,7 @@ export const STEPPER_HTML = /* html */ `
               <path d="M1.02 .48 Q1.18 .82 1 1.1 Q.86 .92 .9 .56Z" fill="#C9668F"/>
             </g>
           </g>
+          <ellipse cx="343" cy="293.5" rx="22" ry="5.5" fill="url(#pillowGrad)" stroke="#E1E3EA" stroke-width="1.2"/>
         </g>
         <path id="blanket" d="M404 290 Q418 279 445 280 Q480 282 520 281 Q560 279 590 273 Q606 269 620 275 Q638 281 646 276 Q652 270 656 284 L658 346 Q530 354 404 346Z"/>
         <path d="M404 290 Q418 279 445 280 Q480 282 520 281 Q560 279 590 273 Q606 269 620 275 Q638 281 646 276 Q652 270 656 284 L658 346 Q530 354 404 346Z" fill="url(#blanketShade)"/>

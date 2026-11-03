@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Hero } from "@/components/marketing/hero";
 import { LiveDonationTicker } from "@/components/marketing/live-donation-ticker";
 import { TrendingFundraisers } from "@/components/marketing/trending-fundraisers";
@@ -16,6 +17,8 @@ import {
   getRecentDonations,
   getPlatformStats,
 } from "@/server/queries/campaigns";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function HomePage() {
   const [cancerTypes, featuredCampaigns, recentDonations, platformStats] =

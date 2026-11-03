@@ -51,3 +51,6 @@ _old_src/
 
 !.env.example
 /env
+
+# Dev-only photo uploads (see src/app/api/upload/route.ts)
+/public/uploads

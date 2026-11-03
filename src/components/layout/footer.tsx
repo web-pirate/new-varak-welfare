@@ -1,6 +1,6 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
-  Heart,
   Facebook,
   Twitter,
   Instagram,
@@ -13,7 +13,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { CONTACT_EMAIL, CONTACT_MAILTO } from "@/lib/contact";
+import { CONTACT_ADDRESS, CONTACT_EMAIL, CONTACT_MAILTO, CONTACT_PHONE, CONTACT_TEL } from "@/lib/contact";
 
 const causes = [
   "Breast Cancer",
@@ -53,6 +53,7 @@ const socialLinks = [
   { icon: Instagram, href: "#", label: "Instagram" },
   { icon: Linkedin, href: "#", label: "LinkedIn" },
   { icon: Youtube, href: "#", label: "YouTube" },
+  { icon: Mail, href: CONTACT_MAILTO, label: "Email" },
 ];
 
 export function Footer() {
@@ -101,11 +102,9 @@ export function Footer() {
           {/* Brand */}
           <div className="lg:col-span-2">
             <div className="flex items-center gap-2.5 mb-5">
-              <div className="w-10 h-10 rounded-none bg-varak-primary flex items-center justify-center">
-                <Heart className="h-5 w-5 text-white fill-white" />
-              </div>
+              <Image src="/logo.png" alt="Varak" width={56} height={56} className="w-14 h-14" />
               <div>
-                <span className="font-heading text-xl">Varak</span>
+                <span className="font-heading text-2xl">Varak</span>
                 <span className="text-xs text-white/40 block -mt-1">
                   Cancer Welfare Society
                 </span>
@@ -201,16 +200,18 @@ export function Footer() {
             <h4 className="font-heading text-lg mb-3">Contact</h4>
             <ul className="space-y-2.5 text-sm text-white/45">
               <li className="flex items-center gap-2">
-                <Mail className="h-3.5 w-3.5 text-varak-warm-wash" />
-                <a href={CONTACT_MAILTO} className="hover:text-white">{CONTACT_EMAIL}</a>
+                <Mail className="h-3.5 w-3.5 flex-shrink-0 text-varak-warm-wash" />
+                <a href={CONTACT_MAILTO} className="hover:text-white">
+                  {CONTACT_EMAIL.split("@")[0]}@<wbr />{CONTACT_EMAIL.split("@")[1]}
+                </a>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="h-3.5 w-3.5 text-varak-warm-wash" />
-                +91 98765 43210
+                <Phone className="h-3.5 w-3.5 flex-shrink-0 text-varak-warm-wash" />
+                <a href={CONTACT_TEL} className="hover:text-white">{CONTACT_PHONE}</a>
               </li>
               <li className="flex items-start gap-2">
-                <MapPin className="h-3.5 w-3.5 text-varak-warm-wash mt-0.5" />
-                Mumbai, Maharashtra, India
+                <MapPin className="h-3.5 w-3.5 flex-shrink-0 text-varak-warm-wash mt-0.5" />
+                {CONTACT_ADDRESS}
               </li>
             </ul>
           </div>

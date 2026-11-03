@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { slugId } from "@/lib/slug";
 import type { CampaignFilters, PaginatedResponse, CampaignWithRelations } from "@/types";
 
 export async function getFeaturedCampaigns(limit = 6) {
@@ -90,7 +91,17 @@ export async function getCampaigns(
   };
 }
 
+// Exact slug first. If the readable part is stale or mistyped, the id at the end still finds the campaign.
 export async function getCampaignBySlug(slug: string) {
+  const exact = await loadCampaign(slug);
+  if (exact) return exact;
+  const id = slugId(slug);
+  if (!id) return null;
+  const match = await prisma.campaign.findFirst({ where: { slug: { endsWith: `-${id}` } }, select: { slug: true } });
+  return match ? loadCampaign(match.slug) : null;
+}
+
+async function loadCampaign(slug: string) {
   const campaign = await prisma.campaign.findUnique({
     where: { slug },
     include: {
@@ -106,6 +117,7 @@ export async function getCampaignBySlug(slug: string) {
       },
       state: true,
       district: true,
+      images: { orderBy: { position: "asc" } },
       documents: true,
       updates: { orderBy: { createdAt: "desc" } },
       comments: {

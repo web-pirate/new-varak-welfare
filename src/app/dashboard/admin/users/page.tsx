@@ -56,6 +56,13 @@ export default async function AdminUsersPage({
               </tr>
             </thead>
             <tbody>
+              {users.length === 0 && (
+                <tr>
+                  <td colSpan={6} className="p-8 text-center text-muted-foreground">
+                    No users found.
+                  </td>
+                </tr>
+              )}
               {users.map((u) => (
                 <tr key={u.id} className="border-b last:border-0">
                   <td className="p-4">

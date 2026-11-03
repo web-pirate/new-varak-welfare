@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { CONTACT_EMAIL, CONTACT_MAILTO } from "@/lib/contact";
+import { CONTACT_ADDRESS, CONTACT_EMAIL, CONTACT_MAILTO, CONTACT_PHONE, CONTACT_TEL } from "@/lib/contact";
 
 export const metadata: Metadata = {
   title: "Contact Us",
@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 
 const contactInfo: { icon: LucideIcon; label: string; value: string; href?: string }[] = [
   { icon: Mail, label: "Email", value: CONTACT_EMAIL, href: CONTACT_MAILTO },
-  { icon: Phone, label: "Phone", value: "+91 98765 43210" },
-  { icon: MapPin, label: "Office", value: "Mumbai, Maharashtra, India" },
+  { icon: Phone, label: "Phone", value: CONTACT_PHONE, href: CONTACT_TEL },
+  { icon: MapPin, label: "Office", value: CONTACT_ADDRESS },
   { icon: Clock, label: "Hours", value: "Mon-Sat, 9AM - 7PM IST" },
 ];
 

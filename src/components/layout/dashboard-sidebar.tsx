@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { UserButton } from "@clerk/nextjs";
 import {
@@ -89,10 +90,8 @@ export function DashboardSidebar({
       {/* Logo */}
       <div className="p-6 border-b border-border/50">
         <Link href="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-none bg-varak-primary flex items-center justify-center">
-            <span className="text-white font-heading text-sm">V</span>
-          </div>
-          <span className="font-heading text-lg text-varak-primary">Varak</span>
+          <Image src="/logo.png" alt="Varak" width={44} height={44} className="w-11 h-11" />
+          <span className="font-heading text-xl text-varak-primary">Varak</span>
         </Link>
         <p className="text-xs text-muted-foreground mt-2">{dashTitle}</p>
       </div>

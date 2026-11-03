@@ -16,8 +16,10 @@ export async function syncUser() {
   const clerkUser = await currentUser();
   if (!clerkUser) return null;
 
-  return prisma.user.create({
-    data: {
+  return prisma.user.upsert({
+    where: { clerkId: userId },
+    update: {},
+    create: {
       clerkId: userId,
       email: clerkUser.emailAddresses[0]?.emailAddress ?? "",
       phone: clerkUser.phoneNumbers[0]?.phoneNumber ?? null,

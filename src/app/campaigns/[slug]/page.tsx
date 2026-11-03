@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { getCampaignBySlug } from "@/server/queries/campaigns";
 import { Header } from "@/components/layout/header";
 import { Footer } from "@/components/layout/footer";
@@ -10,7 +10,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import {
   Heart,
-  Share2,
   MapPin,
   Calendar,
   Users,
@@ -24,6 +23,9 @@ import {
   getInitials,
 } from "@/lib/utils";
 import { DonationModal } from "@/components/campaigns/donation-modal";
+import { ShareButton } from "@/components/campaigns/share-button";
+import { CampaignGallery } from "@/components/campaigns/campaign-gallery";
+import { CampaignDocumentList } from "@/components/campaigns/campaign-document-list";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -37,7 +39,16 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: campaign.title,
     description: campaign.story.substring(0, 160),
+    alternates: { canonical: `/campaigns/${campaign.slug}` },
     openGraph: {
+      type: "article",
+      url: `/campaigns/${campaign.slug}`,
+      title: campaign.title,
+      description: campaign.story.substring(0, 160),
+      images: campaign.beneficiaryImage ? [campaign.beneficiaryImage] : [],
+    },
+    twitter: {
+      card: "summary_large_image",
       title: campaign.title,
       description: campaign.story.substring(0, 160),
       images: campaign.beneficiaryImage ? [campaign.beneficiaryImage] : [],
@@ -53,6 +64,8 @@ export default async function CampaignDetailPage({ params }: Props) {
   ]);
 
   if (!campaign) notFound();
+  // Found through the id at the end of a stale or mistyped slug: send everyone to the canonical address
+  if (campaign.slug !== slug) permanentRedirect(`/campaigns/${campaign.slug}`);
 
   const progress = calculateProgress(campaign.amountRaised, campaign.goalAmount);
 
@@ -70,20 +83,11 @@ export default async function CampaignDetailPage({ params }: Props) {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Main content */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Image */}
-              <div className="aspect-video rounded-none overflow-hidden bg-white border border-border/50">
-                {campaign.beneficiaryImage ? (
-                  <img
-                    src={campaign.beneficiaryImage}
-                    alt={campaign.beneficiaryName}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-varak-primary/10 to-varak-gold/10">
-                    <Heart className="h-16 w-16 text-varak-primary/30" />
-                  </div>
-                )}
-              </div>
+              {/* Photos: campaigns made before multi-photo support only have the cover photo */}
+              <CampaignGallery
+                images={campaign.images.length ? campaign.images.map((i) => i.url) : campaign.beneficiaryImage ? [campaign.beneficiaryImage] : []}
+                alt={campaign.beneficiaryName}
+              />
 
               {/* Title & meta */}
               <div className="bg-white rounded-none p-6 border border-border/50">
@@ -244,32 +248,7 @@ export default async function CampaignDetailPage({ params }: Props) {
                         No documents uploaded.
                       </p>
                     ) : (
-                      <div className="space-y-2">
-                        {campaign.documents.map((doc) => (
-                          <a
-                            key={doc.id}
-                            href={doc.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3 p-3 rounded-none bg-muted/50 hover:bg-muted transition-colors"
-                          >
-                            <FileText className="h-5 w-5 text-varak-primary" />
-                            <div>
-                              <span className="text-sm font-medium">
-                                {doc.fileName || doc.type}
-                              </span>
-                              {doc.verified && (
-                                <Badge
-                                  variant="secondary"
-                                  className="ml-2 text-xs"
-                                >
-                                  Verified
-                                </Badge>
-                              )}
-                            </div>
-                          </a>
-                        ))}
-                      </div>
+                      <CampaignDocumentList docs={campaign.documents.map((d) => ({ url: d.url, fileName: d.fileName || d.type, type: d.type, verified: d.verified }))} />
                     )}
                   </TabsContent>
                 </Tabs>
@@ -305,10 +284,7 @@ export default async function CampaignDetailPage({ params }: Props) {
                   </Button>
                 </DonationModal>
 
-                <Button variant="outline" className="w-full" size="sm">
-                  <Share2 className="mr-2 h-3 w-3" />
-                  Share this campaign
-                </Button>
+                <ShareButton title={campaign.title} />
 
                 {/* Recent donors */}
                 {campaign.donations.length > 0 && (

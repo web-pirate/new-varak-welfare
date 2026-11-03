@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({ success: true, subscriptionId: subscription.id });
   } catch (error) {
-    console.error("Verify subscription error:", error);
+    console.error("Verify subscription error:", error instanceof Error ? error.message : "unknown");
     return NextResponse.json(
       { error: "Subscription verification failed" },
       { status: 500 }

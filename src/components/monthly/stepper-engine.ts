@@ -4,8 +4,9 @@
 
 const MIN = 100, STEP = 100, SHARE = 0.8;
 const SUGGESTED = 300; // the intro walks the story up to this amount
-const LAST_STAGE = 800; // the bedside is complete here; the gift can keep going up
+const LAST_STAGE = 1000; // the bedside is complete here; the gift can keep going up
 const STEPS = (LAST_STAGE - MIN) / STEP + 1;
+const REST_TILT = -14; // degrees: her head rests back into the pillow, and straightens as she sits up
 
 // What she is going through, and what the gift brings to her bedside
 const STORY = [
@@ -16,6 +17,8 @@ const STORY = [
   ["Through the night, a monitor watches over her.", "Equipment helps nurses spot problems early and keep her safe."],
   ["A nurse checks on her, and stays to talk.", "Trained nurses care for her day and night."],
   ["Her daughter visits with flowers and a drawing.", "Help with travel and a family stay room keeps her loved ones close."],
+  ["A physiotherapist helps her stretch, then stand.", "Physiotherapy rebuilds her strength between treatments, so she can walk again."],
+  ["Tonight, for the first time, she sleeps through.", "Counselling and emotional support for her and her family, because healing isn't only physical."],
   ["She sits up, smiles, and feels less alone.", "A whole community stands with her, because people like you chose to give."],
 ];
 const STORY_BEYOND = ["You're helping more patients like her.", "Every extra rupee goes further for people facing cancer."];
@@ -160,6 +163,12 @@ const drawingArt = `<g transform="rotate(-4 467 74)"><rect x="440" y="52" width=
   <circle cx="486" cy="61" r="5" fill="#F4CF4F"/><path d="M447 89 V75 L457 67 L467 75 V89Z" fill="none" stroke="#E07A5F" stroke-width="1.6" stroke-linejoin="round"/>
   <g fill="none" stroke="#C2553A" stroke-width="1.4" stroke-linecap="round"><circle cx="476" cy="74" r="3"/><path d="M476 77 V85 M472 80 H480 M476 85 L473 90 M476 85 L479 90"/><circle cx="487" cy="79" r="2.2"/><path d="M487 81 V86 M484.5 83 H489.5 M487 86 L485 89 M487 86 L489 89"/></g>
   <path d="M452 61 c-2 -3 -6 -1 -4 2 l4 4 l4 -4 c2 -3 -2 -5 -4 -2z" fill="#E7739F"/></g>`;
+const chartArt = `<g transform="rotate(3 552 77)"><rect x="524" y="54" width="56" height="46" fill="#FFFDF6" stroke="#E5DED0"/><rect x="545" y="50" width="14" height="7" fill="#F4E7B8" opacity=".9"/>
+  <g fill="none" stroke="#C2553A" stroke-width="1.5" stroke-linecap="round"><circle cx="538" cy="68" r="3"/><path d="M538 71 V80 M538 74 L533 78 M538 74 L544 77 M538 80 L534 88 M538 80 L543 87"/></g>
+  <g fill="none" stroke="#4E8A3E" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M553 64 l3 3 l6 -6"/><path d="M553 76 l3 3 l6 -6"/><path d="M553 88 l3 3 l6 -6"/></g></g>`;
+const clockArt = `<circle cx="296" cy="64" r="16" fill="#FFFDF6" stroke="#B9C0CA" stroke-width="2.6"/>
+  <path d="M296 51.5 V54 M296 76 V78.5 M283.5 64 H286 M306 64 H308.5" stroke="#6B6F78" stroke-width="1.2" stroke-linecap="round"/>
+  <path d="M296 64 V54" stroke="#3B4250" stroke-width="1.8" stroke-linecap="round"/><path d="M296 64 L290.5 68" stroke="#3B4250" stroke-width="2.2" stroke-linecap="round"/>`;
 const vaseArt = `<path d="M106 236 L120 236 L122 222 Q113 215 104 222Z" fill="#7FB5C9"/><path d="M110 220 L106 202 M113 219 L114 198 M116 220 L122 204" stroke="#4E8A3E" stroke-width="1.4" fill="none"/>
   <circle cx="106" cy="201" r="4" fill="#E78FB3"/><circle cx="114" cy="196" r="4.4" fill="#F4CF4F"/><circle cx="122" cy="203" r="4" fill="#B79BE0"/>`;
 const plantArt = `<path d="M24 440 L56 440 L60 412 L20 412Z" fill="#C77D52"/><rect x="18" y="408" width="44" height="6" rx="2" fill="#B56C44"/>
@@ -185,19 +194,21 @@ const ACTORS = [
   ["ivLayer", 0, 0, 1, "grow", S(2), ivArt],
   ["wallLayer", 0, 0, 1, "grow pop", S(4), monitorArt],
   ["wallLayer", 0, 0, 1, "grow pop", S(6), drawingArt],
-  ["wallLayer", 0, 0, 1, "grow", S(7), vaseArt],
+  ["wallLayer", 0, 0, 1, "grow pop", S(7), chartArt],
+  ["wallLayer", 0, 0, 1, "grow pop", S(8), clockArt],
+  ["wallLayer", 0, 0, 1, "grow", S(9), vaseArt],
   ["behindLayer", 530, 414, 2.85, "walk", S(5), () => adult({ top: "#2E9E9E", pants: "#3D4F55", skin: "#8D5A3B", hair: "#1C1C1C", gaze: [-0.8, 0.5] }), "18px"],
   ["frontLayer", 0, 0, 1, "drive", S(3), overbedArt, "380px"],
   ["frontLayer", 730, 432, 3, "walk", S(5), chairArt, "60px"],
   ["frontLayer", 500, 458, 1.95, "walk", S(6), () => child({ skin: "#E3B48C", hair: "#2B1E16", dress: "#F2A65A", leggings: "#2E9E9E", gaze: [-0.9, -0.4] }), "-24px"],
-  ["frontLayer", 0, 0, 1, "float", S(7), balloonsArt],
-  ["frontLayer", 0, 0, 1, "grow", S(7), plantArt],
+  ["frontLayer", 0, 0, 1, "float", S(9), balloonsArt],
+  ["frontLayer", 0, 0, 1, "grow", S(9), plantArt],
 ];
 
 // Camera: one framing per stage as [centre x, centre y, width]. Close on her face, widening as help arrives.
-const CAM = [[318, 284, 330], [322, 280, 390], [338, 270, 520], [392, 276, 600], [400, 258, 680], [410, 240, 760], [404, 232, 790], [400, 230, 800]];
+const CAM = [[318, 284, 330], [322, 280, 390], [338, 270, 520], [392, 276, 600], [400, 258, 680], [410, 240, 760], [404, 232, 790], [403, 231, 794], [402, 230, 797], [400, 230, 800]];
 // Where she looks at each stage
-const GAZE = [[-0.3, -0.7], [-0.9, 0.1], [-0.6, -0.6], [0.9, 0.25], [-0.1, -0.8], [1, -0.35], [0.7, 0.8], [0, 0.1]];
+const GAZE = [[-1, 0.5], [-0.9, 0.1], [-0.6, -0.6], [0.9, 0.25], [-0.1, -0.8], [1, -0.35], [0.7, 0.8], [0.9, -0.2], [-0.3, -0.3], [0, 0.1]];
 const keyframe = (list, p) => {
   const f = p * (list.length - 1);
   const i = Math.min(list.length - 2, Math.floor(f)), t = f - i;
@@ -273,13 +284,13 @@ export function mountStepper(root, onDonate) {
     svg.style.filter = `saturate(${(0.55 + 0.45 * k).toFixed(3)})`;
 
     // She sits up as she gets stronger; her face softens into a smile
-    theta = 28 * smooth(S(2), S(7), p);
+    theta = 28 * smooth(S(2), S(9), p);
     const rot = `rotate(${theta.toFixed(2)} 430 300)`;
     E.headSection.setAttribute("transform", rot);
     E.armSection.setAttribute("transform", rot);
     const [gx, gy] = keyframe(GAZE, p);
-    E.heroHead.setAttribute("transform", `rotate(${(-0.55 * theta + gx * 2.5).toFixed(2)} 366 280)`);
-    E.heroIris.setAttribute("transform", `translate(${(gx * 0.055).toFixed(3)} ${(gy * 0.03).toFixed(3)})`);
+    E.heroHead.setAttribute("transform", `rotate(${(-0.55 * theta + gx * 5 + REST_TILT * (1 - theta / 28)).toFixed(2)} 366 280)`);
+    E.heroIris.setAttribute("transform", `translate(${(gx * 0.1).toFixed(3)} ${(gy * 0.05).toFixed(3)})`);
     const hp = smooth(0, 0.5, p);
     const bi = -0.27 + 0.065 * hp, bo = -0.165 - 0.015 * hp; // worried brows relax
     E.heroBrows.setAttribute("d", `M-.47 ${bo.toFixed(3)} Q-.32 ${(bo - 0.075).toFixed(3)} -.14 ${bi.toFixed(3)} M.14 ${bi.toFixed(3)} Q.32 ${(bo - 0.075).toFixed(3)} .47 ${bo.toFixed(3)}`);

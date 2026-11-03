@@ -6,7 +6,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -144,7 +143,17 @@ export function DonationModal({
         if (!v) reset();
       }}
     >
-      <DialogTrigger asChild>{children}</DialogTrigger>
+      {/* The trigger can sit inside a card <Link>, so stop the click from navigating while opening the dialog */}
+      <span
+        role="presentation"
+        className="contents"
+        onClick={(e) => {
+          e.preventDefault();
+          setOpen(true);
+        }}
+      >
+        {children}
+      </span>
       <DialogContent className="sm:max-w-md">
         {step === "success" ? (
           <div className="text-center py-6">

@@ -19,8 +19,8 @@ export async function POST(req: Request) {
     return new Response("Missing svix headers", { status: 400 });
   }
 
-  const payload = await req.json();
-  const body = JSON.stringify(payload);
+  // The signature covers the exact bytes Clerk sent, so verify the raw text
+  const body = await req.text();
 
   const wh = new Webhook(WEBHOOK_SECRET);
   let evt: WebhookEvent;
@@ -48,8 +48,10 @@ export async function POST(req: Request) {
       return new Response("No email found", { status: 400 });
     }
 
-    await prisma.user.create({
-      data: {
+    await prisma.user.upsert({
+      where: { clerkId: id },
+      update: {},
+      create: {
         clerkId: id,
         email: primaryEmail,
         phone: primaryPhone || null,
@@ -67,7 +69,7 @@ export async function POST(req: Request) {
     const primaryEmail = email_addresses?.[0]?.email_address;
     const primaryPhone = phone_numbers?.[0]?.phone_number;
 
-    await prisma.user.update({
+    await prisma.user.updateMany({
       where: { clerkId: id },
       data: {
         email: primaryEmail,

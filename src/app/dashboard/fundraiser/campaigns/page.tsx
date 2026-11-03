@@ -6,7 +6,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrency, calculateProgress, timeAgo } from "@/lib/utils";
-import { Plus, Eye, Users, ExternalLink } from "lucide-react";
+import { Plus, Eye, Users, ExternalLink, Pencil } from "lucide-react";
+import { canPostUpdate, editableFields } from "@/lib/campaign-edit";
 
 export default async function FundraiserCampaignsPage() {
   const { userId } = await auth();
@@ -117,15 +118,26 @@ export default async function FundraiserCampaignsPage() {
                       </p>
                     )}
                   </div>
-                  <a
-                    href={`/campaigns/${campaign.slug}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-xs text-varak-primary hover:underline flex items-center gap-1 shrink-0"
-                  >
-                    <ExternalLink className="h-3 w-3" />
-                    View
-                  </a>
+                  <div className="flex shrink-0 items-center gap-4">
+                    {(editableFields(campaign.status).length > 0 || canPostUpdate(campaign.status)) && (
+                      <Link
+                        href={`/dashboard/fundraiser/campaigns/${campaign.id}/edit`}
+                        className="text-xs text-varak-primary hover:underline flex items-center gap-1"
+                      >
+                        <Pencil className="h-3 w-3" />
+                        {editableFields(campaign.status).length > 0 ? "Edit" : "Post update"}
+                      </Link>
+                    )}
+                    <a
+                      href={`/campaigns/${campaign.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-xs text-varak-primary hover:underline flex items-center gap-1"
+                    >
+                      <ExternalLink className="h-3 w-3" />
+                      View
+                    </a>
+                  </div>
                 </div>
               </div>
             );

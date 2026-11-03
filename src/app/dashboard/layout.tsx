@@ -1,6 +1,7 @@
 import { auth } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
+import { syncUser } from "@/server/actions/sync-user";
 import { DashboardSidebar } from "@/components/layout/dashboard-sidebar";
 
 export default async function DashboardLayout({
@@ -11,10 +12,13 @@ export default async function DashboardLayout({
   const { userId } = await auth();
   if (!userId) redirect("/sign-in");
 
-  const user = await prisma.user.findUnique({
-    where: { clerkId: userId },
-    select: { role: true, firstName: true, lastName: true, avatarUrl: true },
-  });
+  const find = () =>
+    prisma.user.findUnique({
+      where: { clerkId: userId },
+      select: { role: true, firstName: true, lastName: true, avatarUrl: true },
+    });
+  // The Clerk webhook normally creates the row; create it here if it has not arrived yet
+  const user = (await find()) ?? ((await syncUser()) ? await find() : null);
 
   if (!user) redirect("/sign-in");
 

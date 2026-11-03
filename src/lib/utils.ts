@@ -30,13 +30,7 @@ export function formatNumber(num: number): string {
   return num.toString();
 }
 
-export function slugify(text: string): string {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[\s_]+/g, "-")
-    .replace(/^-+|-+$/g, "");
-}
+export { slugify } from "./slug";
 
 export function getInitials(name: string): string {
   return name

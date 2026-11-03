@@ -202,6 +202,7 @@ model Campaign {
 
   // Relations
   donations  Donation[]
+  images     CampaignImage[]
   documents  CampaignDocument[]
   updates    CampaignUpdate[]
   comments   Comment[]
@@ -405,6 +406,19 @@ model NgoDocument {
   updatedAt DateTime @updatedAt
 
   @@index([ngoId])
+}
+
+model CampaignImage {
+  id       String @id @default(cuid())
+  url      String
+  position Int    @default(0) // 0 is the cover photo
+
+  campaign   Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  campaignId String
+
+  createdAt DateTime @default(now())
+
+  @@index([campaignId])
 }
 
 model CampaignUpdate {

@@ -393,7 +393,10 @@ export function Hero() {
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
               className="mb-8"
             >
-              <div className="inline-flex items-center gap-3 bg-white/60 backdrop-blur-sm ring-1 ring-foreground/10 rounded-none px-4 py-2.5 shadow-sm">
+              <Link
+                href="/cancer-types#cancer-types"
+                className="inline-flex items-center gap-3 bg-white/60 backdrop-blur-sm ring-1 ring-foreground/10 rounded-none px-4 py-2.5 shadow-sm transition-colors hover:bg-white/90 hover:ring-varak-primary/40"
+              >
                 <div className="flex -space-x-0.5">
                   {ribbonColors.slice(0, 6).map(({ color }) => (
                     <div
@@ -406,7 +409,7 @@ export function Hero() {
                 <span className="text-xs font-semibold tracking-[0.12em] uppercase text-varak-primary/80">
                   Fighting 24+ Cancer Types
                 </span>
-              </div>
+              </Link>
             </motion.div>
 
             {/* Main headline */}

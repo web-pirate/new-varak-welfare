@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { getCancerTypes } from "@/server/queries/campaigns";
 import { CancerTypeGrid } from "./cancer-type-grid";
+import { CancerRibbonList } from "./cancer-ribbon-list";
 
 export const dynamic = "force-dynamic";
 
@@ -306,6 +307,24 @@ const cancerDetails: Record<string, {
   },
 };
 
+// A fresh order on every request (the page is rendered per request)
+function shuffled<T>(list: T[]): T[] {
+  const out = [...list];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
+// Ribbon colours repeat across cancers (e.g. teal, burgundy), so repeats get a lighter tint to keep every bullet distinct
+const seenColors: Record<string, number> = {};
+const ribbonList = Object.entries(cancerDetails).map(([name, d]) => {
+  const dup = (seenColors[d.ribbonColor] = (seenColors[d.ribbonColor] ?? -1) + 1);
+  const color = dup ? `color-mix(in srgb, ${d.ribbonColor}, white ${dup * 30}%)` : d.ribbonColor;
+  return { name, color, base: d.ribbonColor };
+});
+
 export default async function CancerTypesPage() {
   const cancerTypes = await getCancerTypes();
 
@@ -471,7 +490,7 @@ export default async function CancerTypesPage() {
       </section>
 
       {/* Cancer Types Grid */}
-      <section className="relative py-20 bg-white">
+      <section id="cancer-types" className="relative py-20 bg-white scroll-mt-20">
         <div className="section-divider absolute top-0 left-0 right-0" />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-14">
@@ -492,6 +511,8 @@ export default async function CancerTypesPage() {
             cancerTypes={cancerTypes}
             cancerDetails={cancerDetails}
           />
+
+          <CancerRibbonList items={shuffled(ribbonList)} />
         </div>
       </section>
 

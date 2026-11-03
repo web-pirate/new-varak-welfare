@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function MonthlyGivingPage() {
   return (
     <div>
-      <section className="pt-24 pb-16 md:pb-24 bg-gradient-to-b from-varak-cream to-background">
+      <section className="pt-4 pb-16 md:pb-24 bg-gradient-to-b from-varak-cream to-background">
         <div className="px-4 sm:px-6 lg:px-8">
           <MonthlyGivingStepper />
         </div>

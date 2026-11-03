@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { motion, AnimatePresence } from "framer-motion";
@@ -60,15 +61,12 @@ export function Header({ menuItems }: { menuItems: NavItem[] }) {
           <div className="flex items-center justify-between h-16 md:h-[72px]">
             {/* Logo with ribbon accent */}
             <Link href="/" className="flex items-center gap-2.5 group">
-              <div className="relative w-10 h-10 rounded-none bg-varak-primary flex items-center justify-center overflow-hidden shadow-sm group-hover:shadow-md transition-shadow">
-                <span className="text-white font-heading text-lg relative z-10">V</span>
-                <div className="absolute inset-0 bg-gradient-to-br from-white/15 to-transparent" />
-              </div>
+              <Image src="/logo.png" alt="Varak" width={56} height={56} priority className="w-12 h-12 md:w-14 md:h-14" />
               <div className="hidden sm:block">
-                <span className="font-heading text-xl text-foreground tracking-tight block leading-tight">
+                <span className="font-heading text-2xl text-foreground tracking-tight block leading-tight">
                   Varak
                 </span>
-                <span className="text-[10px] font-medium text-muted-foreground tracking-[0.08em] uppercase leading-none">
+                <span className="text-[11px] font-medium text-muted-foreground tracking-[0.08em] uppercase leading-none">
                   Cancer Welfare
                 </span>
               </div>
@@ -109,7 +107,7 @@ export function Header({ menuItems }: { menuItems: NavItem[] }) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-[13px] font-medium text-foreground/60 hover:text-foreground rounded-none"
+                    className="text-[13px] font-medium text-foreground/60 hover:bg-varak-primary/[0.06] hover:text-varak-primary rounded-none"
                   >
                     Sign In
                   </Button>
@@ -120,7 +118,7 @@ export function Header({ menuItems }: { menuItems: NavItem[] }) {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-[13px] font-medium text-foreground/60 hover:text-foreground rounded-none"
+                    className="text-[13px] font-medium text-foreground/60 hover:bg-varak-primary/[0.06] hover:text-varak-primary rounded-none"
                   >
                     Dashboard
                   </Button>
