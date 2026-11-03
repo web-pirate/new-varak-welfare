@@ -3,6 +3,7 @@ import { JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { auth } from "@clerk/nextjs/server";
 import Script from "next/script";
+import { Analytics } from "@vercel/analytics/next";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { syncUser } from "@/server/actions/sync-user";
 import "./globals.css";
@@ -63,6 +64,7 @@ export default async function RootLayout({
       <html lang="en" className={jetbrainsMono.variable}>
         <body className="font-sans antialiased bg-background text-foreground">
           <TooltipProvider>{children}</TooltipProvider>
+          <Analytics />
           <Script src="https://www.googletagmanager.com/gtag/js?id=G-WKHLCFXYPS" strategy="afterInteractive" />
           <Script id="ga4" strategy="afterInteractive">
             {`window.dataLayer = window.dataLayer || [];
