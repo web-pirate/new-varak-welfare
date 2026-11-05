@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { ArrowRight, Heart, Shield, Clock, Sparkles } from "lucide-react";
+import { ArrowRight, Heart, Shield, Clock, Sparkles, CreditCard, Lock, BadgeCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 /* Animated ribbon SVG — the universal cancer awareness symbol */
@@ -115,7 +115,7 @@ function ScrollingMarquee() {
   const row2 = [...marqueeRow2, ...marqueeRow2];
 
   return (
-    <div className="absolute inset-0 overflow-hidden opacity-[0.3] z-[1] pointer-events-none">
+    <div className="absolute inset-0 overflow-hidden opacity-[0.12] lg:opacity-[0.3] z-[1] pointer-events-none">
       <div className="absolute inset-0 flex flex-col justify-center gap-5">
         {/* Row 1 — scrolls left */}
         <div
@@ -344,14 +344,12 @@ export function Hero() {
     target: containerRef,
     offset: ["start start", "end start"],
   });
-  const yText = useTransform(scrollYProgress, [0, 1], [0, 100]);
   const yOrb = useTransform(scrollYProgress, [0, 1], [0, -60]);
-  const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
   return (
     <section
       ref={containerRef}
-      className="relative min-h-screen flex items-center overflow-hidden bg-varak-cream"
+      className="relative lg:min-h-screen flex items-center overflow-hidden bg-varak-cream"
     >
       {/* Scrolling image marquee — behind everything */}
       <ScrollingMarquee />
@@ -380,8 +378,7 @@ export function Hero() {
       <div className="absolute top-0 left-0 right-0 ribbon-bar z-[5]" />
 
       <motion.div
-        style={{ y: yText, opacity }}
-        className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 lg:py-0"
+        className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-0"
       >
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           {/* Left content — 7 cols */}
@@ -391,7 +388,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
               animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
               transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-              className="mb-8"
+              className="mt-2.5 mb-8"
             >
               <Link
                 href="/cancer-types#cancer-types"
@@ -409,6 +406,7 @@ export function Hero() {
                 <span className="text-xs font-semibold tracking-[0.12em] uppercase text-varak-primary/80">
                   Fighting 24+ Cancer Types
                 </span>
+                <ArrowRight className="h-3 w-3 text-varak-primary/80" />
               </Link>
             </motion.div>
 
@@ -440,7 +438,7 @@ export function Hero() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.35, ease: [0.16, 1, 0.3, 1] }}
-              className="text-lg md:text-xl text-muted-foreground max-w-xl mb-10 leading-relaxed"
+              className="text-lg md:text-xl text-foreground/80 max-w-xl mb-10 leading-relaxed"
             >
               Help cancer patients across India get the treatment they deserve.
               Start a fundraiser in minutes — with{" "}
@@ -491,7 +489,7 @@ export function Hero() {
                   initial={{ opacity: 0, x: -10 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: 0.8 + i * 0.1 }}
-                  className="flex items-center gap-2 text-sm text-muted-foreground"
+                  className="flex items-center gap-2 text-sm text-foreground/80"
                 >
                   <div className="w-6 h-6 rounded-none bg-varak-primary/8 flex items-center justify-center flex-shrink-0">
                     <Icon className="h-3 w-3 text-varak-primary" />
@@ -506,13 +504,13 @@ export function Hero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: 0.5, delay: 1.0 }}
-              className="flex items-center gap-3 text-[10px] text-muted-foreground/60"
+              className="flex items-center gap-3 text-[10px] text-foreground/70"
             >
               <span className="uppercase tracking-[0.1em] font-medium">Secured by</span>
               <div className="flex items-center gap-2">
-                <span className="px-2 py-0.5 bg-foreground/5 font-semibold text-foreground/40">Razorpay</span>
-                <span className="px-2 py-0.5 bg-foreground/5 font-semibold text-foreground/40">SSL</span>
-                <span className="px-2 py-0.5 bg-foreground/5 font-semibold text-foreground/40">80G</span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-foreground/5 font-semibold text-foreground/70"><CreditCard className="h-3 w-3" />Razorpay</span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-foreground/5 font-semibold text-foreground/70"><Lock className="h-3 w-3" />SSL</span>
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-foreground/5 font-semibold text-foreground/70"><BadgeCheck className="h-3 w-3" />80G</span>
               </div>
             </motion.div>
           </div>

@@ -32,8 +32,18 @@ export default async function HomePage() {
   return (
     <>
       <Hero />
-      <LiveDonationTicker donations={recentDonations as never} />
-      <TrendingFundraisers campaigns={featuredCampaigns as never} />
+      <LiveDonationTicker
+        donations={recentDonations.map((d) => ({ ...d, amount: Number(d.amount) }))}
+      />
+      <TrendingFundraisers
+        campaigns={
+          featuredCampaigns.map((c) => ({
+            ...c,
+            goalAmount: Number(c.goalAmount),
+            amountRaised: Number(c.amountRaised),
+          })) as never
+        }
+      />
       <ImpactCounterStrip platformStats={platformStats} />
       <FundingCalculator />
       <CausesSection cancerTypes={cancerTypes} />
