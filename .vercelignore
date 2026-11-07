@@ -1,0 +1,6 @@
+# Test tooling and reports stay out of deployments
+tests
+reports
+test-results
+playwright-report
+playwright.config.ts

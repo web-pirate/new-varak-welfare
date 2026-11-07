@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { auth } from "@clerk/nextjs/server";
-import { redirect } from "next/navigation";
 import { getCancerTypes, getStates } from "@/server/queries/campaigns";
+import { FundingCalculator } from "@/components/marketing/funding-calculator";
+import { ExpertContactForm } from "@/components/marketing/expert-contact-form";
 import { CampaignWizard } from "@/components/forms/campaign-wizard";
 
 export const metadata: Metadata = {
@@ -12,7 +13,6 @@ export const metadata: Metadata = {
 
 export default async function StartFundraiserPage() {
   const { userId } = await auth();
-  if (!userId) redirect("/sign-in");
 
   const [cancerTypes, states] = await Promise.all([
     getCancerTypes(),
@@ -33,6 +33,7 @@ export default async function StartFundraiserPage() {
         </div>
 
         <CampaignWizard
+          isSignedIn={!!userId}
           cancerTypes={cancerTypes.map((ct) => ({
             id: ct.id,
             name: ct.name,
@@ -40,6 +41,8 @@ export default async function StartFundraiserPage() {
           states={states.map((s) => ({ id: s.id, name: s.name }))}
         />
       </div>
+      <FundingCalculator />
+      <ExpertContactForm />
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { isOwnImageUrl, sniffImage } from "./upload.ts";
+import { isOwnImageUrl, photoKey, sniffImage } from "./upload.ts";
 
 const bytes = (...n) => new Uint8Array(n);
 const ascii = (s) => [...s].map((c) => c.charCodeAt(0));
@@ -19,6 +19,14 @@ test("anything else is rejected, whatever it is named", () => {
   assert.equal(sniffImage(bytes(...ascii("RIFF"), 1, 2, 3, 4, ...ascii("WAVE"))), null);
   assert.equal(sniffImage(bytes()), null);
   assert.equal(sniffImage(bytes(0xff, 0xd8)), null);
+});
+
+test("R2 photo paths are accepted, other shapes are not", () => {
+  const id = "3f2a1b4c-9b1c-4d5e-8f60-123456789abc";
+  assert.equal(isOwnImageUrl(`/api/files/photos/user_2abc/${id}.jpg`, {}), true);
+  assert.equal(isOwnImageUrl(`/api/files/photos/user_2abc/${id}.pdf`, {}), false);
+  assert.equal(isOwnImageUrl(`/api/files/documents/user_2abc/${id}.jpg`, {}), false); // private documents are not photos
+  assert.equal(isOwnImageUrl(`/api/files/photos/../x/${id}.jpg`, {}), false);
 });
 
 test("only our own Cloudinary account is accepted as a photo URL", () => {
@@ -56,6 +64,10 @@ test("documents: only our own storage URLs, PDF allowed", () => {
   assert.equal(isOwnFileUrl("/uploads/x.html", { allowLocal: true }), false);
   assert.equal(isOwnFileUrl("https://res.cloudinary.com/varak/image/upload/v1/varak/documents/a.pdf", { cloudName: "varak" }), true);
   assert.equal(isOwnFileUrl("https://res.cloudinary.com/other/image/upload/a.pdf", { cloudName: "varak" }), false);
+  const id = "3f2a1b4c-9b1c-4d5e-8f60-123456789abc";
+  assert.equal(isOwnFileUrl(`/api/files/documents/user_2abc/${id}.pdf`, {}), true); // private R2 file
+  assert.equal(isOwnFileUrl(`/api/files/documents/user_2abc/${id}.html`, {}), false);
+  assert.equal(isOwnFileUrl(`/api/files/documents/../x/${id}.pdf`, {}), false);
 });
 
 test("file names are cleaned before they are stored or shown", () => {
@@ -78,4 +90,12 @@ test("PDFs are told apart from images by their URL", () => {
 
 test("every document type has a label", () => {
   for (const t of DOCUMENT_TYPES) assert.ok(DOCUMENT_LABELS[t]);
+});
+
+test("photoKey maps our photo URLs to R2 keys and ignores everything else", () => {
+  const id = "3f2a1b4c-9b1c-4d5e-8f60-123456789abc";
+  assert.equal(photoKey(`/api/files/photos/user_2abc/${id}.jpg`), `photos/user_2abc/${id}.jpg`);
+  assert.equal(photoKey(`/api/files/documents/user_2abc/${id}.pdf`), null); // documents are never touched
+  assert.equal(photoKey("https://res.cloudinary.com/varak/image/upload/a.jpg"), null);
+  assert.equal(photoKey("/uploads/a.jpg"), null);
 });

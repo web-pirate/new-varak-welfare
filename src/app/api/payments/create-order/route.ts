@@ -1,8 +1,10 @@
+import { verifyTurnstile } from "@/lib/turnstile";
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay";
 import { auth } from "@clerk/nextjs/server";
 import { donationSchema } from "@/lib/validations/donation";
 import { prisma } from "@/lib/prisma";
+import { allow } from "@/lib/rate-limit";
 
 function getRazorpay() {
   return new Razorpay({
@@ -12,8 +14,17 @@ function getRazorpay() {
 }
 
 export async function POST(req: NextRequest) {
+  // Open to guests, so cap orders per IP (10 a minute)
+  // cf-connecting-ip is set by Cloudflare and can't be spoofed through it; x-forwarded-for is the fallback without it
+  const ip = req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for")?.split(",")[0].trim() || "unknown";
+  if (!allow(`order:${ip}`, 10, 60_000)) {
+    return NextResponse.json({ error: "Too many attempts, please wait a minute and try again" }, { status: 429 });
+  }
   try {
     const body = await req.json();
+    if (!(await verifyTurnstile(body?.turnstileToken, "donate", ip))) {
+      return NextResponse.json({ error: "Security check failed, please try again" }, { status: 403 });
+    }
     const parsed = donationSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json({ error: parsed.error.issues[0]?.message ?? "Invalid request" }, { status: 400 });

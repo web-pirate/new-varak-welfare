@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { notFound, permanentRedirect } from "next/navigation";
 import { getCampaignBySlug } from "@/server/queries/campaigns";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { getMenuItems } from "@/server/queries/menu";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,10 +16,13 @@ import {
 import {
   formatCurrency,
   calculateProgress,
+  amountToGo,
+  daysLeft,
   timeAgo,
   getInitials,
 } from "@/lib/utils";
 import { DonationModal } from "@/components/campaigns/donation-modal";
+import { ViewTracker } from "@/components/campaigns/view-tracker";
 import { ShareButton } from "@/components/campaigns/share-button";
 import { CampaignGallery } from "@/components/campaigns/campaign-gallery";
 import { CampaignDocumentList } from "@/components/campaigns/campaign-document-list";
@@ -58,29 +58,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CampaignDetailPage({ params }: Props) {
   const { slug } = await params;
-  const [campaign, menuItems] = await Promise.all([
-    getCampaignBySlug(slug),
-    getMenuItems(),
-  ]);
+  const campaign = await getCampaignBySlug(slug);
 
   if (!campaign) notFound();
   // Found through the id at the end of a stale or mistyped slug: send everyone to the canonical address
   if (campaign.slug !== slug) permanentRedirect(`/campaigns/${campaign.slug}`);
 
   const progress = calculateProgress(campaign.amountRaised, campaign.goalAmount);
+  const remaining = amountToGo(campaign.amountRaised, campaign.goalAmount);
 
   return (
     <>
-      <Header
-        menuItems={menuItems.map((item: { id: string; name: string; url: string }) => ({
-          id: item.id,
-          name: item.name,
-          url: item.url,
-        }))}
-      />
-      <main className="min-h-screen pt-20 bg-varak-cream">
+      <div className="pb-24 lg:pb-0 bg-varak-cream">
+        <ViewTracker campaignId={campaign.id} />
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="grid lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Main content */}
             <div className="lg:col-span-2 space-y-6">
               {/* Photos: campaigns made before multi-photo support only have the cover photo */}
@@ -132,7 +124,7 @@ export default async function CampaignDetailPage({ params }: Props) {
               {/* Tabs */}
               <div className="bg-white rounded-none p-6 border border-border/50">
                 <Tabs defaultValue="story">
-                  <TabsList className="mb-4">
+                  <TabsList className="mb-4 max-w-full justify-start overflow-x-auto">
                     <TabsTrigger value="story">Story</TabsTrigger>
                     <TabsTrigger value="updates">
                       Updates ({campaign.updates.length})
@@ -269,7 +261,7 @@ export default async function CampaignDetailPage({ params }: Props) {
                   </p>
                   <Progress value={progress} className="h-3 mb-2" />
                   <div className="flex justify-between text-xs text-muted-foreground">
-                    <span>{progress}% funded</span>
+                    <span>{progress >= 100 ? "Fully funded" : `${progress}% funded`}</span>
                     <span className="flex items-center gap-1">
                       <Users className="h-3 w-3" />
                       {campaign.donorCount} donors
@@ -277,13 +269,43 @@ export default async function CampaignDetailPage({ params }: Props) {
                   </div>
                 </div>
 
-                <DonationModal campaignId={campaign.id} campaignTitle={campaign.title}>
+                {remaining > 0 && (
+                  <p className="mb-3">
+                    <span className="block text-lg font-semibold text-foreground">{formatCurrency(remaining)} still needed</span>
+                    {campaign.endDate && (
+                      <span className="block text-sm text-muted-foreground">{daysLeft(campaign.endDate)} days left</span>
+                    )}
+                  </p>
+                )}
+
+                <DonationModal campaignId={campaign.id} campaignTitle={campaign.title} image={campaign.beneficiaryImage} beneficiaryName={campaign.beneficiaryName} donorCount={campaign.donorCount} progress={progress} daysLeft={campaign.endDate ? daysLeft(campaign.endDate) : undefined} quote={campaign.story.slice(0, 140).trim() + "…"} remaining={remaining}>
                   <Button className="w-full bg-varak-primary hover:bg-varak-primary-dark text-white h-12 text-base mb-3">
                     <Heart className="mr-2 h-4 w-4" />
                     Donate Now
                   </Button>
                 </DonationModal>
 
+                {campaign.verificationStatus === "FULLY_VERIFIED" && (
+                  <p className="flex items-center gap-1.5 text-sm font-medium text-varak-primary mb-3">
+                    <CheckCircle className="h-4 w-4" /> Verified campaign · 0% platform fee
+                  </p>
+                )}
+                {campaign.donations[0] && (
+                  <p className="text-sm text-muted-foreground mb-3">
+                    {campaign.donations[0].isAnonymous ? "Someone" : campaign.donations[0].donorName} gave{" "}
+                    {formatCurrency(campaign.donations[0].amount)} · {timeAgo(campaign.donations[0].createdAt)}
+                  </p>
+                )}
+                {campaign.donorCount === 0 && (
+                  <p className="text-sm text-varak-primary font-medium mb-3">
+                    Be the first to donate. Early gifts encourage others to join.
+                  </p>
+                )}
+                {progress >= 90 && progress < 100 && (
+                  <p className="text-sm text-varak-primary font-medium mb-3">
+                    Almost there! Just {formatCurrency(remaining)} to reach the goal.
+                  </p>
+                )}
                 <ShareButton title={campaign.title} />
 
                 {/* Recent donors */}
@@ -313,8 +335,15 @@ export default async function CampaignDetailPage({ params }: Props) {
             </div>
           </div>
         </div>
-      </main>
-      <Footer />
+      </div>
+      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 p-3 bg-white/95 backdrop-blur border-t border-foreground/10">
+        <DonationModal campaignId={campaign.id} campaignTitle={campaign.title} image={campaign.beneficiaryImage} beneficiaryName={campaign.beneficiaryName} donorCount={campaign.donorCount} progress={progress} daysLeft={campaign.endDate ? daysLeft(campaign.endDate) : undefined} quote={campaign.story.slice(0, 140).trim() + "…"} remaining={remaining}>
+          <Button className="w-full bg-varak-primary hover:bg-varak-primary-dark text-white h-12 text-base">
+            <Heart className="mr-2 h-4 w-4" />
+            Donate Now
+          </Button>
+        </DonationModal>
+      </div>
     </>
   );
 }

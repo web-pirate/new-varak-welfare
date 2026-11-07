@@ -3,6 +3,7 @@ import Razorpay from "razorpay";
 import { auth } from "@clerk/nextjs/server";
 import { subscriptionSchema } from "@/lib/validations/subscription";
 import { prisma } from "@/lib/prisma";
+import { allow } from "@/lib/rate-limit";
 import { syncUser } from "@/server/actions/sync-user";
 
 function getRazorpay() {
@@ -20,6 +21,10 @@ export async function POST(req: NextRequest) {
     const { userId } = await auth();
     if (!userId) {
       return NextResponse.json({ error: "Please sign in first" }, { status: 401 });
+    }
+
+    if (!allow(`sub:${userId}`, 5, 60_000)) {
+      return NextResponse.json({ error: "Too many attempts, please wait a minute" }, { status: 429 });
     }
 
     const parsed = subscriptionSchema.safeParse(await req.json());

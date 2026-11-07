@@ -28,14 +28,17 @@ export async function getCampaigns(
   filters: CampaignFilters = {}
 ): Promise<PaginatedResponse<CampaignWithRelations>> {
   const {
-    search,
+    search: rawSearch,
     cancerType,
     state,
     status = "APPROVED",
     sortBy = "recent",
-    page = 1,
+    page: rawPage = 1,
     pageSize = 12,
   } = filters;
+  // Bound what the public URL can ask for: a junk page (NaN) would crash the query, a huge one scans the table
+  const search = rawSearch?.slice(0, 100);
+  const page = Number.isFinite(rawPage) ? Math.min(Math.max(Math.trunc(rawPage), 1), 500) : 1;
 
   const where: Record<string, unknown> = { status };
 

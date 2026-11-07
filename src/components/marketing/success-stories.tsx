@@ -160,7 +160,7 @@ export function SuccessStories() {
                   />
                   {/* Verified badge overlay */}
                   {story.verified && (
-                    <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-green-600 text-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
+                    <div className="absolute bottom-3 left-3 flex items-center gap-1 bg-green-600 text-white px-2 py-1 text-xs font-bold uppercase tracking-wider">
                       <BadgeCheck className="h-3 w-3" />
                       Verified Story
                     </div>

@@ -3,10 +3,10 @@ import { z } from "zod";
 export const donationSchema = z.object({
   amount: z.coerce.number().int("Enter a whole rupee amount").min(10, "Minimum donation is ₹10").max(500000),
   tipAmount: z.coerce.number().int().min(0).max(100000).default(0),
-  campaignId: z.string().min(1),
-  donorName: z.string().min(2).optional(),
-  donorEmail: z.string().email().optional(),
-  donorPhone: z.string().optional(),
+  campaignId: z.string().min(1).max(50),
+  donorName: z.string().min(2).max(100).optional(),
+  donorEmail: z.string().email().max(254).optional(),
+  donorPhone: z.string().max(15).optional(),
   isAnonymous: z.boolean().default(false),
   panNumber: z
     .string()

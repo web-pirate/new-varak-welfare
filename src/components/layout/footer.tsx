@@ -11,6 +11,7 @@ import {
   MapPin,
   Shield,
   ArrowRight,
+  Star,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CONTACT_ADDRESS, CONTACT_EMAIL, CONTACT_MAILTO, CONTACT_PHONE, CONTACT_TEL } from "@/lib/contact";
@@ -34,7 +35,7 @@ const platformLinks = [
 
 const supportLinks = [
   { label: "Help Center", href: "/contact" },
-  { label: "Trust & Safety", href: "/trust-safety" },
+  { label: "Trust & Safety", href: "/about" },
   { label: "Contact Support", href: "/contact" },
   { label: "About Varak", href: "/about" },
   { label: "Careers", href: "/careers" },
@@ -145,6 +146,16 @@ export function Footer() {
                 </a>
               ))}
             </div>
+
+            <a
+              href="https://www.google.com/preferences/source?q=varakwelfare.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-1 border border-white/15 px-2 py-0.5 text-[10px] text-white/60 hover:bg-white/5 hover:text-white transition-colors"
+            >
+              <Star className="h-3 w-3 text-varak-gold" />
+              Preferred source on Google
+            </a>
           </div>
 
           {/* Causes */}

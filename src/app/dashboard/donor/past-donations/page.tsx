@@ -1,7 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { formatCurrency, timeAgo } from "@/lib/utils";
+import { DonationStamp } from "@/components/campaigns/donation-stamp";
 import { Badge } from "@/components/ui/badge";
 
 export default async function DonorPastDonationsPage() {
@@ -17,7 +19,7 @@ export default async function DonorPastDonationsPage() {
   const donations = await prisma.donation.findMany({
     where: { donorId: user.id },
     include: {
-      campaign: { select: { title: true, slug: true, beneficiaryName: true } },
+      campaign: { select: { title: true, slug: true, beneficiaryName: true, beneficiaryImage: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -40,6 +42,23 @@ export default async function DonorPastDonationsPage() {
         Total donated: {formatCurrency(totalDonated)} across{" "}
         {donations.filter((d) => d.status === "COMPLETED").length} donations
       </p>
+
+      {donations.some((d) => d.status === "COMPLETED") && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 mb-8">
+          {donations
+            .filter((d) => d.status === "COMPLETED")
+            .map((d) => (
+              <Link key={d.id} href={`/campaigns/${d.campaign.slug}`} className="block transition-transform hover:-translate-y-1">
+                <DonationStamp
+                  amount={Number(d.amount)}
+                  date={d.createdAt}
+                  beneficiaryName={d.campaign.beneficiaryName}
+                  image={d.campaign.beneficiaryImage}
+                />
+              </Link>
+            ))}
+        </div>
+      )}
 
       {donations.length === 0 ? (
         <div className="bg-white rounded-2xl p-12 border border-border/50 text-center">

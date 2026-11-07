@@ -25,6 +25,7 @@ interface RazorpayOptions {
   theme?: {
     color?: string;
   };
+  config?: Record<string, unknown>;
   modal?: {
     ondismiss?: () => void;
   };
