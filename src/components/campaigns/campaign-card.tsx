@@ -3,7 +3,7 @@ import { Heart, Users, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { formatCurrency, calculateProgress, timeAgo } from "@/lib/utils";
+import { formatCurrency, calculateProgress, amountToGo, daysLeft, timeAgo } from "@/lib/utils";
 import { DonationModal } from "@/components/campaigns/donation-modal";
 import type { CampaignWithRelations } from "@/types";
 
@@ -128,21 +128,21 @@ export function CampaignCard({
               {" "}of {formatCurrency(campaign.goalAmount)}
             </span>
           </div>
-          <span className="text-muted-foreground">{progress}%</span>
+          <span className="text-muted-foreground">{progress >= 100 ? "Fully funded" : `${formatCurrency(amountToGo(campaign.amountRaised, campaign.goalAmount))} to go`}</span>
         </div>
 
         {/* Footer */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Users className="h-3 w-3" />
-            {campaign.donorCount} donors
+            {campaign.donorCount === 0 ? "Be the first to donate" : `${campaign.donorCount} donors`}
           </div>
           <span className="text-xs text-muted-foreground">
             {timeAgo(campaign.createdAt)}
           </span>
         </div>
 
-        <DonationModal campaignId={campaign.id} campaignTitle={campaign.title}>
+        <DonationModal campaignId={campaign.id} campaignTitle={campaign.title} image={campaign.beneficiaryImage} beneficiaryName={campaign.beneficiaryName} donorCount={campaign.donorCount} progress={progress} daysLeft={campaign.endDate ? daysLeft(campaign.endDate) : undefined} quote={campaign.story.slice(0, 140).trim() + "…"} remaining={amountToGo(campaign.amountRaised, campaign.goalAmount)}>
           <Button
             className="w-full mt-4 bg-varak-primary hover:bg-varak-primary-dark text-white rounded-none"
             size="sm"

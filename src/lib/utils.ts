@@ -41,6 +41,11 @@ export function getInitials(name: string): string {
     .slice(0, 2);
 }
 
+/** Rupees still needed, never negative. */
+export function amountToGo(raised: NumericValue, goal: NumericValue): number {
+  return Math.max(toNumber(goal) - toNumber(raised), 0);
+}
+
 export function calculateProgress(raised: NumericValue, goal: NumericValue): number {
   const r = toNumber(raised);
   const g = toNumber(goal);

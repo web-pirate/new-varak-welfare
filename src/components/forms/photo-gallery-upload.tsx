@@ -5,7 +5,7 @@ import { ArrowLeft, ArrowRight, ImagePlus, Loader2, SlidersHorizontal, Star, Tra
 import { Button } from "@/components/ui/button";
 import { IMAGE_TYPES, MAX_PHOTOS, MAX_UPLOAD_BYTES } from "@/lib/upload";
 import { PhotoEditor } from "@/components/forms/photo-editor";
-import { shrinkImage, uploadFile } from "@/components/forms/shrink-image";
+import { addWatermark, shrinkImage, uploadFile } from "@/components/forms/shrink-image";
 
 // Several patient photos. The first one is the cover (shown on cards and link previews). Each can be adjusted, moved or removed.
 export function PhotoGalleryUpload({
@@ -41,7 +41,7 @@ export function PhotoGalleryUpload({
         problems.push(`${file.name}: please choose a JPG, PNG or WebP photo`);
         continue;
       }
-      const blob = await shrinkImage(file);
+      const blob = await addWatermark(await shrinkImage(file));
       if (blob.size > MAX_UPLOAD_BYTES) {
         problems.push(`${file.name} is too large`);
         continue;

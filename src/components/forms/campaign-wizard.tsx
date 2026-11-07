@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { track } from "@vercel/analytics";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +37,8 @@ const steps = [
   { label: "Review", icon: CheckCircle },
 ];
 
+const DRAFT_KEY = "varak-fundraiser-draft";
+
 const relationships = [
   "Self",
   "Parent",
@@ -49,7 +52,9 @@ const relationships = [
 export function CampaignWizard({
   cancerTypes,
   states,
+  isSignedIn,
 }: {
+  isSignedIn: boolean;
   cancerTypes: { id: string; name: string }[];
   states: { id: string; name: string }[];
 }) {
@@ -69,10 +74,31 @@ export function CampaignWizard({
     title: "",
     goalAmount: "",
     story: "",
+    fundsUse: "",
   });
 
   const [images, setImages] = useState<string[]>([]);
   const [documents, setDocuments] = useState<DocItem[]>([]);
+
+  // Draft survives refresh and the sign-in round trip (urls only, no files)
+  const [draftLoaded, setDraftLoaded] = useState(false);
+  useEffect(() => {
+    try {
+      const d = JSON.parse(localStorage.getItem(DRAFT_KEY) || "null");
+      if (d) {
+        setFormData((f) => ({ ...f, ...d.formData }));
+        setImages(d.images ?? []);
+        setDocuments(d.documents ?? []);
+        setStep(isSignedIn ? d.step : Math.min(d.step, 2));
+      }
+    } catch {
+      localStorage.removeItem(DRAFT_KEY);
+    }
+    setDraftLoaded(true);
+  }, [isSignedIn]);
+  useEffect(() => {
+    if (draftLoaded) localStorage.setItem(DRAFT_KEY, JSON.stringify({ formData, images, documents, step }));
+  }, [draftLoaded, formData, images, documents, step]);
 
   const update = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -105,6 +131,15 @@ export function CampaignWizard({
         setError("Story must be at least 50 characters");
         return;
       }
+      if (formData.fundsUse.trim().length < 20) {
+        setError("Tell donors what the money will be used for (at least 20 characters)");
+        return;
+      }
+    }
+    if (step === 2 && !isSignedIn) {
+      track("fundraiser_signup_prompt");
+      router.push("/sign-in?redirect_url=/start-fundraiser");
+      return;
     }
     setStep((s) => Math.min(s + 1, steps.length - 1));
   };
@@ -117,7 +152,9 @@ export function CampaignWizard({
 
     try {
       const fd = new FormData();
-      Object.entries(formData).forEach(([key, value]) => {
+      const { fundsUse, ...rest } = formData;
+      // No separate column yet: the funds plan is stored as the last section of the story
+      Object.entries({ ...rest, story: `${rest.story}\n\nHow the funds will be used:\n${fundsUse.trim()}` }).forEach(([key, value]) => {
         if (value) fd.append(key, value);
       });
 
@@ -126,6 +163,7 @@ export function CampaignWizard({
 
       const result = await createCampaign(fd);
       if (result.success) {
+        localStorage.removeItem(DRAFT_KEY);
         router.push(`/campaigns/${result.slug}`);
       }
     } catch (e) {
@@ -168,6 +206,9 @@ export function CampaignWizard({
       </div>
 
       <div className="bg-white rounded-2xl p-6 md:p-8 border border-border/50">
+        <p className="text-xs font-medium text-varak-primary mb-1">
+          Step {step + 1} of {steps.length} · progress saved automatically
+        </p>
         <h2 className="font-heading text-xl mb-6">{steps[step].label}</h2>
 
         {error && (
@@ -214,10 +255,14 @@ export function CampaignWizard({
                 className="mt-1"
               />
             </div>
-            <div>
-              <Label htmlFor="wizard-photo">Patient&apos;s photos (optional)</Label>
-              <PhotoGalleryUpload id="wizard-photo" value={images} onChange={setImages} />
-            </div>
+            {isSignedIn ? (
+              <div>
+                <Label htmlFor="wizard-photo">Patient&apos;s photos (optional)</Label>
+                <PhotoGalleryUpload id="wizard-photo" value={images} onChange={setImages} />
+              </div>
+            ) : (
+              <p className="text-sm text-muted-foreground">You can add photos and documents after a quick sign-in at the end of step 3.</p>
+            )}
           </div>
         )}
 
@@ -315,6 +360,16 @@ export function CampaignWizard({
                 {formData.story.length}/50 characters minimum
               </p>
             </div>
+            <div>
+              <Label>What will the money be used for? * (min 20 characters)</Label>
+              <Textarea
+                value={formData.fundsUse}
+                onChange={(e) => update("fundsUse", e.target.value)}
+                placeholder="e.g., ₹3,00,000 for the bone marrow transplant, ₹1,00,000 for 6 months of medicines"
+                rows={3}
+                className="mt-1"
+              />
+            </div>
           </div>
         )}
 
@@ -378,6 +433,10 @@ export function CampaignWizard({
                 <span className="text-muted-foreground">Story</span>
                 <p className="font-medium text-sm">{formData.story}</p>
               </div>
+              <div className="col-span-2">
+                <span className="text-muted-foreground">Use of funds</span>
+                <p className="font-medium text-sm">{formData.fundsUse}</p>
+              </div>
             </div>
           </div>
         )}
@@ -414,7 +473,7 @@ export function CampaignWizard({
                 </>
               ) : (
                 <>
-                  Submit Campaign
+                  Submit for approval (within 48 hours)
                   <CheckCircle className="ml-2 h-4 w-4" />
                 </>
               )}

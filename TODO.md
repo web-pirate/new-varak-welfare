@@ -22,6 +22,15 @@
 - [ ] 15. `updateCampaignStatus`: only allow valid status transitions
 - [ ] 16. Rename `middleware.ts` to `proxy.ts` (Next 16)
 
+## Landing: monthly + campaign donations
+- [ ] Hero: "Give monthly | Give once" toggle, monthly pre-selected, middle amount highlighted, impact line per amount (`Hero`, `MonthlyGivingSection`)
+- [ ] Featured campaigns right under the hero; "Make it monthly" upsell in `CampaignCard` / `DonationModal`
+- [ ] Thank-you step after a one-time gift: "Keep this impact going, ₹X/month"
+- [ ] Monthly section: "Cancel anytime", 80G receipt, monthly impact update; add Razorpay mandate wording
+- [ ] Real urgency only (true deadlines/gaps); no forced monthly, keep one-time option
+- [ ] A/B test monthly-default vs one-time-default; track conversion, average gift, 3-month retention
+- [ ] Depends on #3 (record subscription charges) so monthly impact can be shown
+
 ## Other
 - [ ] Submit sitemap in Google Search Console after deploy
 - [ ] Set Cloudinary keys in `.env.local` and Vercel

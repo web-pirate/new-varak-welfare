@@ -1,15 +1,6 @@
-import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 
-export function hmacSha256(secret: string, payload: string) {
-  return crypto.createHmac("sha256", secret).update(payload).digest("hex");
-}
-
-export function safeEqual(a: string, b: string) {
-  const x = Buffer.from(a);
-  const y = Buffer.from(b);
-  return x.length === y.length && crypto.timingSafeEqual(x, y);
-}
+export { hmacSha256, safeEqual } from "./signature";
 
 /**
  * Marks a donation paid and credits the campaign exactly once. The conditional

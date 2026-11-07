@@ -1,11 +1,13 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { ArrowRight, Heart, Shield, Clock, Sparkles, CreditCard, Lock, BadgeCheck } from "lucide-react";
+import { track } from "@vercel/analytics";
+import { motion, useScroll, useTransform } from "framer-motion";
+import { ArrowRight, Heart, Shield, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ScrollingMarquee } from "@/components/marketing/scrolling-marquee";
+import { PatientCarousel } from "@/components/marketing/patient-carousel";
 
 /* Animated ribbon SVG — the universal cancer awareness symbol */
 function RibbonSVG({ className }: { className?: string }) {
@@ -83,260 +85,10 @@ const ribbonColors = [
 ];
 
 const heroStats = [
-  { value: 0, suffix: "%", label: "Platform Fee", sublabel: "Every rupee goes to patient", icon: Sparkles, color: "#C2553A" },
+  { value: 0, suffix: "%", label: "Platform Fee", sublabel: "All to patient", icon: Sparkles, color: "#C2553A" },
   { value: 50, suffix: "Cr+", label: "Funds Raised", sublabel: "", icon: Heart, color: "#E8618C" },
   { value: 5.5, suffix: "M+", label: "Lives Touched", sublabel: "", icon: Shield, color: "#D4A843" },
 ];
-
-const trustPoints = [
-  { icon: Shield, text: "3-Tier Verified Campaigns" },
-  { icon: Clock, text: "24hr Fund Disbursals" },
-  { icon: Heart, text: "Tax Benefits under 80G" },
-];
-
-/* Marquee images — happy families after cancer treatment */
-const marqueeRow1 = [
-  "/marquee/1.jpg",
-  "/marquee/2.jpg",
-  "/marquee/3.jpg",
-  "/marquee/4.jpg",
-  "/marquee/5.jpg",
-];
-const marqueeRow2 = [
-  "/marquee/6.jpg",
-  "/marquee/7.jpg",
-  "/marquee/8.jpg",
-  "/marquee/9.jpg",
-  "/patients/lakshmi.jpg",
-];
-
-function ScrollingMarquee() {
-  const row1 = [...marqueeRow1, ...marqueeRow1];
-  const row2 = [...marqueeRow2, ...marqueeRow2];
-
-  return (
-    <div className="absolute inset-0 overflow-hidden opacity-[0.12] lg:opacity-[0.3] z-[1] pointer-events-none">
-      <div className="absolute inset-0 flex flex-col justify-center gap-5">
-        {/* Row 1 — scrolls left */}
-        <div
-          className="flex gap-5 w-max animate-marquee-left"
-        >
-          {row1.map((src, i) => (
-            <div
-              key={`r1-${i}`}
-              className="w-[480px] h-[320px] flex-shrink-0 rounded-xl overflow-hidden"
-            >
-              <Image
-                src={src}
-                alt=""
-                width={480}
-                height={320}
-                className="w-full h-full object-cover grayscale"
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Row 2 — scrolls right */}
-        <div
-          className="flex gap-5 w-max animate-marquee-right"
-        >
-          {row2.map((src, i) => (
-            <div
-              key={`r2-${i}`}
-              className="w-[480px] h-[320px] flex-shrink-0 rounded-xl overflow-hidden"
-            >
-              <Image
-                src={src}
-                alt=""
-                width={480}
-                height={320}
-                className="w-full h-full object-cover grayscale"
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-const patients = [
-  {
-    name: "Priya Sharma",
-    age: 34,
-    type: "Breast Cancer",
-    color: "#E8618C",
-    image: "/patients/priya.jpg",
-    story:
-      "A mother of two from Jaipur, Priya completed 6 cycles of chemo thanks to 342 donors who believed in her fight.",
-    raised: "₹4.2L",
-    goal: "₹5L",
-    progress: 84,
-  },
-  {
-    name: "Rajesh Kumar",
-    age: 45,
-    type: "Leukemia",
-    color: "#E87040",
-    image: "/patients/rajesh.jpg",
-    story:
-      "A school teacher from Patna who received a life-saving bone marrow transplant funded entirely by this community.",
-    raised: "₹8.1L",
-    goal: "₹10L",
-    progress: 81,
-  },
-  {
-    name: "Ananya Patel",
-    age: 8,
-    type: "Childhood Cancer",
-    color: "#D4A843",
-    image: "/patients/ananya.jpg",
-    story:
-      "Little Ananya beat neuroblastoma and is back in school. Her family calls every donor their guardian angel.",
-    raised: "₹6.5L",
-    goal: "₹6.5L",
-    progress: 100,
-  },
-  {
-    name: "Mohammed Irfan",
-    age: 52,
-    type: "Prostate Cancer",
-    color: "#6B8DB2",
-    image: "/patients/mohammed.jpg",
-    story:
-      "A retired army veteran whose regiment and 200+ strangers united to fund his treatment in Lucknow.",
-    raised: "₹3.5L",
-    goal: "₹5L",
-    progress: 70,
-  },
-  {
-    name: "Lakshmi Devi",
-    age: 41,
-    type: "Ovarian Cancer",
-    color: "#2E9E9E",
-    image: "/patients/lakshmi.jpg",
-    story:
-      "A daily wage worker from Chennai whose surgery was fully funded in just 11 days by compassionate donors.",
-    raised: "₹2.8L",
-    goal: "₹3L",
-    progress: 93,
-  },
-];
-
-function PatientCarousel() {
-  const [current, setCurrent] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
-
-  useEffect(() => {
-    if (isPaused) return;
-    const timer = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % patients.length);
-    }, 4500);
-    return () => clearInterval(timer);
-  }, [isPaused]);
-
-  const patient = patients[current];
-
-  return (
-    <div
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
-    >
-      <div className="flex items-center justify-between mb-2.5">
-        <span className="text-[10px] font-semibold tracking-[0.15em] uppercase text-varak-primary/50">
-          Patient Stories
-        </span>
-        <div className="flex gap-1.5">
-          {patients.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className={`h-1 rounded-full transition-all duration-500 ${
-                i === current
-                  ? "w-5 bg-varak-primary"
-                  : "w-1.5 bg-foreground/10 hover:bg-foreground/20"
-              }`}
-            />
-          ))}
-        </div>
-      </div>
-
-      <div className="glass-card rounded-none ring-1 ring-foreground/10 overflow-hidden relative min-h-[220px]">
-        {/* Colored accent bar */}
-        <div
-          className="absolute top-0 left-0 right-0 h-[3px] transition-colors duration-500"
-          style={{ backgroundColor: patient.color }}
-        />
-
-        <div className="p-5 pt-5">
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={current}
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <div className="flex items-center gap-3 mb-3.5">
-                <div
-                  className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0 ring-2 ring-white shadow-sm"
-                >
-                  <Image
-                    src={patient.image}
-                    alt={patient.name}
-                    width={40}
-                    height={40}
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <div>
-                  <h4 className="text-sm font-semibold text-foreground leading-tight">
-                    {patient.name}, {patient.age}
-                  </h4>
-                  <span
-                    className="inline-block text-[9px] font-semibold px-1.5 py-px rounded-sm mt-0.5 text-white tracking-wider"
-                    style={{ backgroundColor: patient.color }}
-                  >
-                    {patient.type}
-                  </span>
-                </div>
-              </div>
-
-              <p className="text-[13px] text-muted-foreground leading-relaxed mb-4">
-                &ldquo;{patient.story}&rdquo;
-              </p>
-
-              <div className="space-y-1.5">
-                <div className="flex justify-between text-[11px]">
-                  <span className="font-semibold text-foreground">
-                    {patient.raised} raised
-                  </span>
-                  <span className="text-muted-foreground">
-                    of {patient.goal}
-                  </span>
-                </div>
-                <div className="h-1.5 bg-foreground/5 rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full rounded-full"
-                    style={{ backgroundColor: patient.color }}
-                    initial={{ width: 0 }}
-                    animate={{ width: `${patient.progress}%` }}
-                    transition={{
-                      duration: 0.8,
-                      delay: 0.15,
-                      ease: [0.16, 1, 0.3, 1],
-                    }}
-                  />
-                </div>
-              </div>
-            </motion.div>
-          </AnimatePresence>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 export function Hero() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -348,6 +100,7 @@ export function Hero() {
 
   return (
     <section
+      id="hero"
       ref={containerRef}
       className="relative lg:min-h-screen flex items-center overflow-hidden bg-varak-cream"
     >
@@ -441,7 +194,7 @@ export function Hero() {
               className="text-lg md:text-xl text-foreground/80 max-w-xl mb-10 leading-relaxed"
             >
               Help cancer patients across India get the treatment they deserve.
-              Start a fundraiser in minutes — with{" "}
+              Give to a verified fundraiser — with{" "}
               <strong className="text-varak-primary font-semibold">zero platform fees</strong>.
               Every ribbon color, every cancer type, one mission.
             </motion.p>
@@ -451,67 +204,25 @@ export function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.5 }}
-              className="flex flex-wrap gap-4 mb-12"
+              className="flex flex-wrap items-center gap-x-6 gap-y-3 mb-6"
             >
               <Button
                 asChild
                 size="lg"
                 className="bg-varak-primary hover:bg-varak-primary-dark text-white text-base px-8 h-12 rounded-none shadow-[0_8px_30px_rgba(194,85,58,0.25)] hover:shadow-[0_12px_40px_rgba(194,85,58,0.35)] transition-all duration-300 hover:-translate-y-0.5"
               >
-                <Link href="/start-fundraiser">
-                  Start a Fundraiser
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-              <Button
-                asChild
-                variant="outline"
-                size="lg"
-                className="border-varak-pink/20 text-varak-pink hover:bg-varak-pink/5 text-base px-8 h-12 rounded-none backdrop-blur-sm bg-white/50 hover:border-varak-pink/30 transition-all duration-300"
-              >
-                <Link href="/campaigns">
+                <Link href="/campaigns" onClick={() => track("hero_donate_click")}>
                   <Heart className="mr-2 h-4 w-4" />
                   Donate Now
                 </Link>
               </Button>
-            </motion.div>
-
-            {/* Trust points */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.6, delay: 0.7 }}
-              className="flex flex-wrap gap-x-6 gap-y-3 mb-6"
-            >
-              {trustPoints.map(({ icon: Icon, text }, i) => (
-                <motion.div
-                  key={text}
-                  initial={{ opacity: 0, x: -10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.8 + i * 0.1 }}
-                  className="flex items-center gap-2 text-sm text-foreground/80"
-                >
-                  <div className="w-6 h-6 rounded-none bg-varak-primary/8 flex items-center justify-center flex-shrink-0">
-                    <Icon className="h-3 w-3 text-varak-primary" />
-                  </div>
-                  {text}
-                </motion.div>
-              ))}
-            </motion.div>
-
-            {/* Payment/trust badges */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 0.5, delay: 1.0 }}
-              className="flex items-center gap-3 text-[10px] text-foreground/70"
-            >
-              <span className="uppercase tracking-[0.1em] font-medium">Secured by</span>
-              <div className="flex items-center gap-2">
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-foreground/5 font-semibold text-foreground/70"><CreditCard className="h-3 w-3" />Razorpay</span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-foreground/5 font-semibold text-foreground/70"><Lock className="h-3 w-3" />SSL</span>
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 bg-foreground/5 font-semibold text-foreground/70"><BadgeCheck className="h-3 w-3" />80G</span>
-              </div>
+              <Link
+                href="/start-fundraiser"
+                className="inline-flex items-center h-12 text-base font-medium text-varak-primary underline underline-offset-4 hover:text-varak-primary-dark"
+              >
+                Start a Fundraiser
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Link>
             </motion.div>
           </div>
 
@@ -564,11 +275,11 @@ export function Hero() {
                             </span>
                           )}
                         </div>
-                        <div className="text-[8px] text-muted-foreground font-medium uppercase tracking-wider mt-0.5">
+                        <div className="text-xs text-muted-foreground font-medium uppercase tracking-wider mt-0.5">
                           {stat.label}
                         </div>
                         {stat.sublabel && (
-                          <div className="text-[7px] text-varak-primary/60 font-medium mt-0.5 leading-tight">
+                          <div className="text-xs text-varak-primary/60 font-medium mt-0.5 leading-tight">
                             {stat.sublabel}
                           </div>
                         )}

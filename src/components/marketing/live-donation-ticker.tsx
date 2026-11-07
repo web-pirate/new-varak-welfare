@@ -37,7 +37,7 @@ function DonationChip({ donation }: { donation: DonationItem }) {
   return (
     <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-white/80 backdrop-blur-sm border border-border/40 flex-shrink-0 mx-2">
       <div className="w-7 h-7 rounded-full bg-varak-primary/10 flex items-center justify-center flex-shrink-0">
-        <span className="text-[10px] font-bold text-varak-primary">{initials}</span>
+        <span className="text-xs font-bold text-varak-primary">{initials}</span>
       </div>
       <span className="text-sm whitespace-nowrap">
         <strong className="text-foreground">{name.split(" ")[0]}</strong>
@@ -62,7 +62,7 @@ export function LiveDonationTicker({ donations }: { donations?: DonationItem[] }
           <span className="animate-pulse-dot absolute inline-flex h-full w-full rounded-full bg-green-500 opacity-75" />
           <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-green-500" />
         </span>
-        <span className="text-[10px] font-bold uppercase tracking-[0.15em] text-green-700">Live</span>
+        <span className="text-xs font-bold uppercase tracking-[0.15em] text-green-700">Live</span>
       </div>
 
       {/* Scrolling ticker */}

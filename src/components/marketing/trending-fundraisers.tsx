@@ -5,7 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, Clock, Users, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { formatCurrency, daysLeft, calculateProgress, getInitials } from "@/lib/utils";
+import { formatCurrency, daysLeft, calculateProgress, amountToGo, getInitials } from "@/lib/utils";
 import type { CampaignWithRelations } from "@/types";
 
 const ribbonColorMap: Record<string, string> = {
@@ -124,13 +124,13 @@ function CampaignCard({ campaign, index }: { campaign: PlaceholderCampaign; inde
 
         {/* Urgency badge */}
         {isUrgent && (
-          <div className="absolute top-3 left-3 flex items-center gap-1 bg-red-600 text-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
+          <div className="absolute top-3 left-3 flex items-center gap-1 bg-red-600 text-white px-2 py-1 text-xs font-bold uppercase tracking-wider">
             <Clock className="h-3 w-3" />
             {days === 0 ? "Last Day!" : `${days} days left`}
           </div>
         )}
         {!isUrgent && (
-          <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
+          <div className="absolute top-3 left-3 flex items-center gap-1 bg-black/60 backdrop-blur-sm text-white px-2 py-1 text-xs font-bold uppercase tracking-wider">
             <Clock className="h-3 w-3" />
             {days} days left
           </div>
@@ -138,7 +138,7 @@ function CampaignCard({ campaign, index }: { campaign: PlaceholderCampaign; inde
 
         {/* Cancer type badge */}
         <div
-          className="absolute top-3 right-3 px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-white"
+          className="absolute top-3 right-3 px-2 py-1 text-xs font-bold uppercase tracking-wider text-white"
           style={{ backgroundColor: ribbonColor }}
         >
           {campaign.cancerTypeName.replace(" Cancer", "").replace(" (Leukemia)", "")}
@@ -163,15 +163,15 @@ function CampaignCard({ campaign, index }: { campaign: PlaceholderCampaign; inde
             <span className="font-semibold text-foreground">
               {formatCurrency(campaign.amountRaised)} raised
             </span>
-            <span className="text-muted-foreground">
-              of {formatCurrency(campaign.goalAmount)}
+            <span className="font-medium text-varak-primary">
+              {progress >= 100 ? "Fully funded" : `${formatCurrency(amountToGo(campaign.amountRaised, campaign.goalAmount))} to go`}
             </span>
           </div>
 
           {/* Donors count */}
           <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
             <Users className="h-3 w-3" />
-            <span>{campaign.donorCount} donors</span>
+            <span>{campaign.donorCount === 0 ? "Be the first to donate" : `${campaign.donorCount} donors`}</span>
           </div>
         </div>
 

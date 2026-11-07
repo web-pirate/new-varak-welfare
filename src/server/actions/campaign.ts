@@ -3,7 +3,8 @@
 import { auth } from "@clerk/nextjs/server";
 import { prisma } from "@/lib/prisma";
 import { campaignCreateSchema, campaignStoryUpdateSchema, campaignUpdateSchema, documentListSchema, imageListSchema } from "@/lib/validations/campaign";
-import { MAX_DOCUMENTS, cleanFileName } from "@/lib/upload";
+import { MAX_DOCUMENTS, cleanFileName, photoKey } from "@/lib/upload";
+import { r2Configured, r2Delete } from "@/lib/r2";
 import { canPostUpdate, editableFields, lockedKeys } from "@/lib/campaign-edit";
 import { ZodError } from "zod";
 import { campaignSlug, slugify } from "@/lib/slug";
@@ -28,6 +29,10 @@ export async function createCampaign(formData: FormData) {
 
   const user = await syncUser();
   if (!user) throw new Error("User not found");
+
+  // Stops one account flooding the admin review queue
+  const pending = await prisma.campaign.count({ where: { createdById: user.id, status: "PENDING_REVIEW" } });
+  if (pending >= 3) throw new Error("You already have 3 campaigns waiting for review. Please wait for them to be reviewed.");
 
   const rawData = Object.fromEntries(formData.entries());
   const validated = campaignCreateSchema.parse(rawData);
@@ -137,6 +142,24 @@ async function ownedCampaign(campaignId: string) {
   return campaign;
 }
 
+/** Deletes R2 photos that a save just removed from a campaign, unless something else still points at them. Best effort: a failure never fails the save. */
+async function deleteOrphanPhotos(urls: string[]) {
+  if (!r2Configured) return;
+  for (const url of urls) {
+    const key = photoKey(url);
+    if (!key) continue;
+    try {
+      const inUse =
+        (await prisma.campaignImage.count({ where: { url } })) +
+        (await prisma.campaign.count({ where: { beneficiaryImage: url } })) +
+        (await prisma.campaignUpdate.count({ where: { imageUrl: url } }));
+      if (inUse === 0) await r2Delete(key);
+    } catch (e) {
+      console.error("Photo cleanup failed:", e instanceof Error ? e.message : "unknown");
+    }
+  }
+}
+
 function refresh(slug: string) {
   revalidatePath(`/campaigns/${slug}`);
   revalidatePath("/campaigns");
@@ -159,6 +182,7 @@ export async function updateCampaign(campaignId: string, formData: FormData): Pr
     const given = Object.fromEntries(Object.entries(fields).filter(([k, v]) => !(CLEARABLE.includes(k) && v === "")));
     const data = campaignUpdateSchema.parse(given);
 
+    const before = images ? (await prisma.campaignImage.findMany({ where: { campaignId: campaign.id }, select: { url: true } })).map((i) => i.url) : [];
     await prisma.$transaction([
       prisma.campaign.update({
         where: { id: campaign.id },
@@ -177,6 +201,7 @@ export async function updateCampaign(campaignId: string, formData: FormData): Pr
           ]
         : []),
     ]);
+    if (images) await deleteOrphanPhotos(before.filter((u) => !images.includes(u)));
     refresh(campaign.slug);
     return { ok: true, slug: campaign.slug };
   } catch (e) {

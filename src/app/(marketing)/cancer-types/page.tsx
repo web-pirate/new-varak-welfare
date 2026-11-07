@@ -14,7 +14,7 @@ import { getCancerTypes } from "@/server/queries/campaigns";
 import { CancerTypeGrid } from "./cancer-type-grid";
 import { CancerRibbonList } from "./cancer-ribbon-list";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export const metadata: Metadata = {
   title: "Cancer Types & Awareness | Know the Facts",

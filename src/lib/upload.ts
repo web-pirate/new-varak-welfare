@@ -14,11 +14,18 @@ export function sniffImage(b: Uint8Array): ImageType | null {
   return null;
 }
 
+/** Where a photo is read back: /api/files/photos/<uploader's Clerk id>/<uuid>.<ext>. */
+export const PHOTO_PATH = /^\/api\/files\/photos\/([A-Za-z0-9_]+)\/([a-f0-9-]{36}\.(?:jpg|png|webp))$/;
+
+/** The R2 object key behind one of our photo URLs, or null for anything else (old Cloudinary photos, local files). */
+export const photoKey = (url: string): string | null => (PHOTO_PATH.test(url) ? url.replace("/api/files/", "") : null);
+
 /**
- * Only accept image URLs our own upload route produced: a photo from our Cloudinary account, or (in development only)
+ * Only accept image URLs our own upload route produced: a photo in our R2 bucket, an older one from our Cloudinary account, or (in development only)
  * a file under /uploads. This stops anyone saving an arbitrary external URL, such as a tracking pixel, as a patient photo.
  */
 export function isOwnImageUrl(url: string, opts: { cloudName?: string; allowLocal?: boolean }): boolean {
+  if (PHOTO_PATH.test(url)) return true; // public R2 photo, served by /api/files/photos
   if (opts.allowLocal && /^\/uploads\/[a-z0-9-]+\.(jpg|png|webp)$/.test(url)) return true;
   if (!opts.cloudName) return false;
   const prefix = `https://res.cloudinary.com/${opts.cloudName}/`;
@@ -47,8 +54,12 @@ export function sniffDocument(b: Uint8Array): ImageType | "application/pdf" | nu
   return isPdf ? "application/pdf" : null;
 }
 
+/** Where a private document is read back: /api/files/documents/<uploader's Clerk id>/<uuid>.<ext>. Capture groups: owner, file. */
+export const DOCUMENT_PATH = /^\/api\/files\/documents\/([A-Za-z0-9_]+)\/([a-f0-9-]{36}\.(?:jpg|png|webp|pdf))$/;
+
 /** Same trust rule as isOwnImageUrl, for documents: our own storage only, and a PDF is allowed as well as an image. */
 export function isOwnFileUrl(url: string, opts: { cloudName?: string; allowLocal?: boolean }): boolean {
+  if (DOCUMENT_PATH.test(url)) return true; // private R2 file, served by /api/files
   if (opts.allowLocal && /^\/uploads\/[a-z0-9-]+\.(jpg|png|webp|pdf)$/.test(url)) return true;
   if (!opts.cloudName) return false;
   return url.startsWith(`https://res.cloudinary.com/${opts.cloudName}/`) && !/[\s"'<>]/.test(url);

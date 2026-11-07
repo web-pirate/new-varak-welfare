@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { getCampaigns, getCancerTypes, getStates } from "@/server/queries/campaigns";
 import { CampaignCard } from "@/components/campaigns/campaign-card";
-import { Header } from "@/components/layout/header";
-import { Footer } from "@/components/layout/footer";
-import { getMenuItems } from "@/server/queries/menu";
 import type { CampaignWithRelations } from "@/types";
 
 export const metadata: Metadata = {
@@ -18,9 +15,8 @@ export default async function CampaignsPage({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const params = await searchParams;
-  const [menuItems, { data: campaigns, total, totalPages }, cancerTypes, states] =
+  const [{ data: campaigns, total, totalPages }, cancerTypes, states] =
     await Promise.all([
-      getMenuItems(),
       getCampaigns({
         search: params.search,
         cancerType: params.cancerType,
@@ -36,14 +32,7 @@ export default async function CampaignsPage({
 
   return (
     <>
-      <Header
-        menuItems={menuItems.map((item: { id: string; name: string; url: string }) => ({
-          id: item.id,
-          name: item.name,
-          url: item.url,
-        }))}
-      />
-      <main className="min-h-screen pt-20">
+      <div>
         {/* Header */}
         <section className="py-10 bg-gradient-to-b from-varak-cream to-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -149,8 +138,7 @@ export default async function CampaignsPage({
             )}
           </div>
         </section>
-      </main>
-      <Footer />
+      </div>
     </>
   );
 }

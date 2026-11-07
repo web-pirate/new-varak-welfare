@@ -54,3 +54,15 @@ _old_src/
 
 # Dev-only photo uploads (see src/app/api/upload/route.ts)
 /public/uploads
+.env*
+
+# E2E reports and Playwright artifacts
+/reports/
+/test-results/
+/playwright-report/
+
+# e2e build cache and reports
+*.tsbuildinfo
+/reports
+/test-results
+/playwright-report
